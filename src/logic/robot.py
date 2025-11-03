@@ -1,8 +1,10 @@
 from collections import defaultdict
+from .card import Card
+from typing import List
 
 class Robot:
 
-    def __init__(self, robot_id, victory_points, starting_budget, type_R):
+    def __init__(self, robot_id, victory_points, starting_budget, type_R, cards_list=None):
         """
         Inizializza un nuovo giocatore.
 
@@ -16,7 +18,7 @@ class Robot:
         self.robot_id = robot_id
         self.victory_points = victory_points
         self.budget = starting_budget
-        self.cards = []  # Lista di oggetti Card vinti
+        self.cards: List[Card] = list(cards_list) if cards_list else []
         self.type_R = type_R
 
     def can_bid(self, amount):

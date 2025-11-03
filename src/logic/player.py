@@ -1,9 +1,11 @@
 from collections import defaultdict
+from .card import Card
+from typing import List
 
 
 class Player:
 
-    def __init__(self, player_id, victory_points, starting_budget):
+    def __init__(self, player_id, victory_points, starting_budget, cards_list=None):
         """
         Inizializza un nuovo giocatore.
 
@@ -17,7 +19,7 @@ class Player:
         self.player_id = player_id
         self.victory_points = victory_points
         self.budget = starting_budget
-        self.cards = []  # Lista di oggetti Card vinti
+        self.cards: List[Card] = list(cards_list) if cards_list else []
 
     def can_bid(self, amount):
         """Verifica se il giocatore può fare un'offerta."""
