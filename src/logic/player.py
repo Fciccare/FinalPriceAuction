@@ -25,12 +25,16 @@ class Player:
         """Verifica se il giocatore può fare un'offerta."""
         return amount <= self.budget
 
-    def win_card(self, card, cost):
+    def win_card(self, card : Card, cost):
         """
         Aggiorna lo stato del giocatore dopo aver vinto una carta.
         """
-        self.budget -= cost
-        self.cards.append(card)
+        if(card.heat_requirement <= cost):
+            self.budget -= cost
+            self.cards.append(card)
+            return True
+        else:
+            return False
 
     #  CALCOLO PUNTEGGIO FINALE
     def calculate_victory_points(self):
