@@ -1,39 +1,110 @@
 [
-    {
-        "card_name": "Bussola D'Oro",
-        "category_name": "art",
-        "category_color": "red",
-        "victory_points": 3,
-        "starting_bid": 10,
-        "heat_requirement": 45,
-        "image_url": "path/to/img"
-    },
-    {
-        "card_name": "Bussola D'Oro",
-        "category_name": "art",
-        "category_color": "red",
-        "victory_points": 3,
-        "starting_bid": 10,
-        "heat_requirement": 45,
-        "image_url": "path/to/img"
-    },
-    {
-        "card_name": "Bussola D'Oro",
-        "category_name": "art",
-        "category_color": "red",
-        "victory_points": 3,
-        "starting_bid": 10,
-        "heat_requirement": 45,
-        "image_url": "path/to/img"
-    },
-    {
-        "card_name": "Bussola D'Oro",
-        "category_name": "art",
-        "category_color": "red",
-        "victory_points": 3,
-        "starting_bid": 10,
-        "heat_requirement": 45,
-        "image_url": "path/to/img"
-    }
-
+  {
+    "card_name": "Bussola d'Oro",
+    "category_name": "Arte",
+    "category_color": "red",
+    "victory_points": 3,
+    "starting_bid": 10,
+    "heat_requirement": 35,
+    "img_url": "/images/deck1/bussola_d_oro.png"
+  },
+  {
+    "card_name": "Anfora Greca",
+    "category_name": "Arte",
+    "category_color": "red",
+    "victory_points": 6,
+    "starting_bid": 15,
+    "heat_requirement": 61,
+    "img_url": "/images/deck1/anfora_greca.png"
+  },
+  {
+    "card_name": "Arazzo Reale",
+    "category_name": "Arte",
+    "category_color": "red",
+    "victory_points": 9,
+    "starting_bid": 25,
+    "heat_requirement": 96,
+    "img_url": "/images/deck1/arazzo_reale.png"
+  },
+  {
+    "card_name": "La Canzone della Seta",
+    "category_name": "Arte",
+    "category_color": "red",
+    "victory_points": 12,
+    "starting_bid": 35,
+    "heat_requirement": 123,
+    "img_url": "/images/deck1/canzone_della_seta.png"
+  },
+  {
+    "card_name": "Manuale di Alchimia",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 3,
+    "starting_bid": 10,
+    "heat_requirement": 62,
+    "img_url": "/images/deck1/manuale_alchimia.png"
+  },
+  {
+    "card_name": "Chip per AI",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 6,
+    "starting_bid": 15,
+    "heat_requirement": 74,
+    "img_url": "/images/deck1/chip_ai.png"
+  },
+  {
+    "card_name": "Progetto \"Ornitottero\"",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 9,
+    "starting_bid": 25,
+    "heat_requirement": 102,
+    "img_url": "/images/deck1/progetto_ornitottero.png"
+  },
+  {
+    "card_name": "Reattore Arc",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 12,
+    "starting_bid": 35,
+    "heat_requirement": 118,
+    "img_url": "/images/deck1/reattore_arc.png"
+  },
+  {
+    "card_name": "Spada di Steve",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 3,
+    "starting_bid": 10,
+    "heat_requirement": 48,
+    "img_url": "/images/deck1/spada_steve.png"
+  },
+  {
+    "card_name": "Mantello di Giulio Cesare",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 6,
+    "starting_bid": 15,
+    "heat_requirement": 73,
+    "img_url": "/images/deck1/mantello_cesare.png"
+  },
+  {
+    "card_name": "Frammento di Obelisco",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 9,
+    "starting_bid": 25,
+    "heat_requirement": 87,
+    "img_url": "/images/deck1/frammento_obelisco.png"
+  },
+  {
+    "card_name": "Corona Sommersa",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 12,
+    "starting_bid": 35,
+    "heat_requirement": 121,
+    "img_url": "/images/deck1/corona_sommersa.png"
+  }
 ]

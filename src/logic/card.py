@@ -5,7 +5,7 @@ class Card:
     il gameplay, aste e requisiti.
     """
     
-    def __init__(self, card_name, image_url, category_name, category_color, victory_points, starting_bid, heat_requirement):
+    def __init__(self, card_name, img_url, category_name, category_color, victory_points, starting_bid, heat_requirement):
         """
         Inizializza una nuova carta.
 
@@ -17,7 +17,7 @@ class Card:
                                     per ottenere questa carta.
         """
         self.card_name = card_name
-        self.image_url = image_url
+        self.img_url = img_url
         self.category_name = category_name
         self.category_color = category_color
         self.victory_points = victory_points

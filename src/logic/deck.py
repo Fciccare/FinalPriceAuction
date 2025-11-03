@@ -86,7 +86,7 @@ class Deck:
                 card = Card(
                     card_name=card_data["card_name"],
                     category_name = card_data["category_name"],
-                    image_url = card_data["image_url"],
+                    img_url = card_data["img_url"],
                     category_color = card_data["category_color"],
                     victory_points=card_data["victory_points"],
                     starting_bid=card_data["starting_bid"],

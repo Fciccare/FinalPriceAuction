@@ -1,0 +1,110 @@
+[
+  {
+    "card_name": "La Gioconda Perduta",
+    "category_name": "Arte",
+    "category_color": "red",
+    "victory_points": 3,
+    "starting_bid": 10,
+    "heat_requirement": 46,
+    "img_url": "/images/deck2/gioconda_perduta.png"
+  },
+  {
+    "card_name": "Statua di Gargoyle",
+    "category_name": "Arte",
+    "category_color": "red",
+    "victory_points": 6,
+    "starting_bid": 15,
+    "heat_requirement": 75,
+    "img_url": "/images/deck2/statua_gargoyle.png"
+  },
+  {
+    "card_name": "La statua di GioGio",
+    "category_name": "Arte",
+    "category_color": "red",
+    "victory_points": 9,
+    "starting_bid": 25,
+    "heat_requirement": 97,
+    "img_url": "/images/deck2/statua_giogio.png"
+  },
+  {
+    "card_name": "Maschera Tribale",
+    "category_name": "Arte",
+    "category_color": "red",
+    "victory_points": 12,
+    "starting_bid": 35,
+    "heat_requirement": 115,
+    "img_url": "/images/deck2/maschera_tribale.png"
+  },
+  {
+    "card_name": "Visore VR",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 3,
+    "starting_bid": 10,
+    "heat_requirement": 59,
+    "img_url": "/images/deck2/visore_vr.png"
+  },
+  {
+    "card_name": "Prima Copia di Minecraft",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 6,
+    "starting_bid": 15,
+    "heat_requirement": 75,
+    "img_url": "/images/deck2/prima_minecraft.png"
+  },
+  {
+    "card_name": "AI \"Architetto\"",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 9,
+    "starting_bid": 25,
+    "heat_requirement": 99,
+    "img_url": "/images/deck2/AI_architetto.png"
+  },
+  {
+    "card_name": "Server \"Matrix\" Primario",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 12,
+    "starting_bid": 35,
+    "heat_requirement": 110,
+    "img_url": "/images/deck2/server_matrix.png"
+  },
+  {
+    "card_name": "Artiglio di dinosauro",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 3,
+    "starting_bid": 10,
+    "heat_requirement": 43,
+    "img_url": "/images/deck2/artiglio_dinosauro.png"
+  },
+  {
+    "card_name": "Console Anni '80",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 6,
+    "starting_bid": 15,
+    "heat_requirement": 79,
+    "img_url": "/images/deck2/console_80.png"
+  },
+  {
+    "card_name": "Macchina da Scrivere",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 9,
+    "starting_bid": 25,
+    "heat_requirement": 91,
+    "img_url": "/images/deck2/macchina_scrivere.png"
+  },
+  {
+    "card_name": "Sfera per catturare creature",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 12,
+    "starting_bid": 35,
+    "heat_requirement": 111,
+    "img_url": "/images/deck2/sfera_creature.png"
+  }
+]
