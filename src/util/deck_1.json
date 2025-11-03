@@ -1,0 +1,39 @@
+[
+    {
+        "card_name": "Bussola D'Oro",
+        "category_name": "art",
+        "category_color": "red",
+        "victory_points": 3,
+        "starting_bid": 10,
+        "heat_requirement": 45,
+        "image_url": "path/to/img"
+    },
+    {
+        "card_name": "Bussola D'Oro",
+        "category_name": "art",
+        "category_color": "red",
+        "victory_points": 3,
+        "starting_bid": 10,
+        "heat_requirement": 45,
+        "image_url": "path/to/img"
+    },
+    {
+        "card_name": "Bussola D'Oro",
+        "category_name": "art",
+        "category_color": "red",
+        "victory_points": 3,
+        "starting_bid": 10,
+        "heat_requirement": 45,
+        "image_url": "path/to/img"
+    },
+    {
+        "card_name": "Bussola D'Oro",
+        "category_name": "art",
+        "category_color": "red",
+        "victory_points": 3,
+        "starting_bid": 10,
+        "heat_requirement": 45,
+        "image_url": "path/to/img"
+    }
+
+]
