@@ -1,1 +1,14 @@
+.venv/
+.venv/*
+.venv/lib64
+.venv/pyvenv.cfg
+.venv/bin/python
+.venv/bin/python3
+.venv/bin/python3.10
 venv/
+*.pyc
+src/logic/__pycache__/card.cpython-310.pyc
+src/logic/__pycache__/deck.cpython-310.pyc
+src/logic/__pycache__/player.cpython-310.pyc
+src/logic/__pycache__/robot.cpython-310.pyc
+src/logic/__pycache__/

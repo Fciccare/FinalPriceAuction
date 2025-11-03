@@ -20,13 +20,13 @@ def start_game():
         print(f"\n--- ROUND {round_num} ---")
         card = deck.draw()
         print(f" Carta scoperta: {card.card_name} ({card.category_color}) - Valore: {card.victory_points} PV")
-  
+
         
 
     #Fine partita: calcolo dei punti
     print("\n🎯 FINE PARTITA!")
-    print(f"{player.player_id} ha {player.calculate_victory_points()} PV")
-    print(f"{robot.robot_id} ha {robot.calculate_victory_points()} PV")
+    print(f"{player.name} ha {player.calculate_victory_points()} PV")
+    print(f"{robot.name} ha {robot.calculate_victory_points()} PV")
 
     if player.calculate_victory_points() > robot.calculate_victory_points():
         print("✨ Hai vinto!")

@@ -31,6 +31,7 @@ class Deck:
         """
         # Copia difensiva per evitare modifiche esterne
         self.cards: List[Card] = list(cards_list) if cards_list else []
+        self.current_card = None
 
     def __repr__(self) -> str:
         """Rappresentazione testuale del mazzo."""
@@ -55,7 +56,8 @@ class Deck:
         if not self.cards:
             print("Il mazzo è vuoto! Impossibile pescare.")
             return None
-        return self.cards.pop()
+        self.current_card = self.cards.pop()
+        print("AAAAAAAAAAAAAAAAAAAAAAAAA",self.current_card)
 
     def add_card(self, card: Card) -> None:
         """
