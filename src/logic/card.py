@@ -1,3 +1,10 @@
+from enum import Enum
+
+class Category(Enum):
+    ART = "Arte"
+    TECHNOLOGY = "Tecnologia"
+    RELIC = "Reliquia"
+
 class Card:
 
     """

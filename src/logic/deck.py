@@ -1,5 +1,5 @@
 import random # Necessario per mescolare il mazzo
-from .card import Card 
+from .card import Card , Category
 import os
 import json
 from typing import List
@@ -57,7 +57,6 @@ class Deck:
             print("Il mazzo è vuoto! Impossibile pescare.")
             return None
         self.current_card = self.cards.pop()
-        print("AAAAAAAAAAAAAAAAAAAAAAAAA",self.current_card)
 
     def add_card(self, card: Card) -> None:
         """
@@ -85,9 +84,13 @@ class Deck:
                 data = json.load(f)
             
             for card_data in data:
+
+                category_string = card_data["category_name"]
+                category_enum = Category(category_string)
+                
                 card = Card(
                     card_name=card_data["card_name"],
-                    category_name = card_data["category_name"],
+                    category_name = category_enum,
                     img_url = card_data["img_url"],
                     category_color = card_data["category_color"],
                     victory_points=card_data["victory_points"],

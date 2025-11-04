@@ -1,4 +1,4 @@
-from .card import Card
+from .card import Card, Category
 from typing import List,Dict
 
 
@@ -18,13 +18,14 @@ class Player:
         self.player_id = player_id
         self.victory_points = victory_points
         self.budget = starting_budget
+        self.has_passed = False
         if cards_list:
             self.cards: Dict[str, List[Card]] = cards_list
         else:
             self.cards = {
-                "Arte": [],
-                "Tecnologia": [],
-                "Reliquie": []
+                Category.ART: [],
+                Category.TECHNOLOGY: [],
+                Category.RELIC: []
             }
 
     def can_bid(self, amount):
@@ -39,11 +40,11 @@ class Player:
             self.budget -= cost
 
             if "Arte" in card.category_name:
-                self.cards["Arte"].append(card)
+                self.cards[Category.ART].append(card)
             elif "Tecnologia" in card.category_name :
-                self.cards["Tecnologia"].append(card)
+                self.cards[Category.TECHNOLOGY].append(card)
             elif "Reliquia" in card.category_name:
-                self.cards["Reliquie"].append(card)
+                self.cards[Category.RELIC].append(card)
 
             return True
         else:

@@ -16,13 +16,12 @@ class Robot(Player):
             heat_requirement (int): Il livello minimo di 'calore' richiesto 
                                     per ottenere questa carta.
         """
-        super().__init__("", victory_points, starting_budget, cards_list)
-        self.robot_id = robot_id
+        super().__init__(robot_id, victory_points, starting_budget, cards_list)
         self.type_R = type_R
 
 
     def __repr__(self):
-        return (f"Robot('{self.robot_id}', Tipologia='{self.type_R}', "
+        return (f"Robot('{self.player_id}', Tipologia='{self.type_R}', "
                 f"budget={self.budget}, Arte={len(self.cards['Arte'])}, "
                 f"Tecnologia={len(self.cards['Tecnologia'])}, "
                 f"Reliquie={len(self.cards['Reliquie'])})")
