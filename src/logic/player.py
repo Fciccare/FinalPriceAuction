@@ -1,6 +1,5 @@
-from collections import defaultdict
 from .card import Card
-from typing import List
+from typing import List,Dict
 
 
 class Player:
@@ -19,7 +18,14 @@ class Player:
         self.player_id = player_id
         self.victory_points = victory_points
         self.budget = starting_budget
-        self.cards: List[Card] = list(cards_list) if cards_list else []
+        if cards_list:
+            self.cards: Dict[str, List[Card]] = cards_list
+        else:
+            self.cards = {
+                "Arte": [],
+                "Tecnologia": [],
+                "Reliquie": []
+            }
 
     def can_bid(self, amount):
         """Verifica se il giocatore può fare un'offerta."""
@@ -31,7 +37,14 @@ class Player:
         """
         if(card.heat_requirement <= cost):
             self.budget -= cost
-            self.cards.append(card)
+
+            if "Arte" in card.category_name:
+                self.cards["Arte"].append(card)
+            elif "Tecnologia" in card.category_name :
+                self.cards["Tecnologia"].append(card)
+            elif "Reliquia" in card.category_name:
+                self.cards["Reliquie"].append(card)
+
             return True
         else:
             return False
@@ -41,22 +54,20 @@ class Player:
         """
         Calcola i punti vittoria totali (solo punti base delle carte).
         """
-        return sum(card.victory_points for card in self.cards)
-
-    def count_by_color(self):
+        total = 0
+        for group in self.cards.values():
+            total += sum(card.victory_points for card in group)
+        return total
+    
+    def count_by_category(self):
         """
         Conta quante carte per colore possiede.
         Assumendo che `card.card_name` contenga una parola che identifica il tipo.
         """
-        counts = defaultdict(int)
-        for c in self.cards:
-            if "Arte" in c.card_name or "Rosso" in c.card_name:
-                counts["Rosso"] += 1
-            elif "Tecnologia" in c.card_name or "Blu" in c.card_name:
-                counts["Blu"] += 1
-            elif "Reliquia" in c.card_name or "Verde" in c.card_name:
-                counts["Verde"] += 1
-        return counts
+        return {k: len(v) for k, v in self.cards.items()}
 
     def __repr__(self):
-        return f"Player('{self.name}', budget={self.budget}, carte={len(self.cards)})"
+        return (f"Player('{self.player_id}', budget={self.budget}, "
+                f"Arte={len(self.cards['Arte'])}, "
+                f"Tecnologia={len(self.cards['Tecnologia'])}, "
+                f"Reliquie={len(self.cards['Reliquie'])})")
