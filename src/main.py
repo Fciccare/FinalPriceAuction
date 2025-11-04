@@ -16,6 +16,7 @@ from logic.robot import Robot
 #subprocess.Popen(["streamlit", "run", filename, os.devnull])
 import streamlit as st
 import streamlit_shadcn_ui as ui
+from streamlit_lottie import st_lottie
 
 # --- CONFIGURAZIONE BASE ---
 st.set_page_config(page_title="Asta tra due utenti", layout="wide")
@@ -204,6 +205,48 @@ with col3:
 #         unsafe_allow_html=True,
 #     )
 
+import time
+import base64
+
+def show_modal_animation_local(gif_path, duration=3, background_opacity=0.6, gif_width=250):
+    """
+    Mostra una GIF locale centrata su sfondo scuro trasparente.
+    
+    gif_path: percorso al file .gif (locale)
+    duration: durata in secondi prima che sparisca
+    background_opacity: livello di trasparenza dello sfondo (0–1)
+    gif_width: larghezza della gif in pixel
+    """
+    placeholder = st.empty()
+
+    # Legge il file GIF e lo converte in base64
+    with open(gif_path, "rb") as f:
+        data_url = f"data:image/gif;base64,{base64.b64encode(f.read()).decode()}"
+
+    # HTML del modale
+    modal_html = f"""
+    <div style="
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, {background_opacity});
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    ">
+        <img src="{data_url}" width="{gif_width}">
+    </div>
+    """
+
+    # Mostra la GIF
+    placeholder.markdown(modal_html, unsafe_allow_html=True)
+    time.sleep(duration)
+    placeholder.empty()
+
+# if st.button("Mostra GIF"):
+#     show_modal_animation_local("anime.gif", duration=2.5, gif_width=2060)
+
 st.markdown("---")
 
 # --- SEZIONE UTENTE 1 ---
@@ -229,8 +272,8 @@ with col1:
         st.session_state.deck.draw()
         st.session_state.carte_rimaste = len(st.session_state.deck)
         st.session_state.asta_corrent=0
-        #print(st.session_state.card)
         st.rerun()
+        #print(st.session_state.card)
 
 
 # --- SEZIONE UTENTE 2 ---
@@ -250,6 +293,8 @@ with col2:
     if st.button("Passa Utente 2", 4):
         if(st.session_state.player.win_card(st.session_state.deck.current_card, st.session_state.offerta_utente1)):
             st.success("Utente 1 hai vinto la card", icon="🎉")
+            #if st.button("Mostra GIF"):
+            show_modal_animation_local("anime.gif", duration=2.5, gif_width=2060)
         else:
             st.warning("Carta bruciata", icon="🔥")
         st.session_state.deck.draw()
@@ -260,10 +305,129 @@ with col2:
 st.markdown("---")
 
 
+import base64
+import time
+import streamlit as st
+import time
+import base64
+
+def show_modal_video_fade(video_path, duration=4, background_opacity=0.7, video_width=400):
+    """
+    Mostra un modale con un video centrale e animazioni di fade in/out.
+    """
+    placeholder = st.empty()
+
+    # Codifica il video in base64 per l'embed diretto
+    with open(video_path, "rb") as f:
+        data_url = f"data:video/mp4;base64,{base64.b64encode(f.read()).decode()}"
+
+    modal_html = f"""
+    <style>
+    @keyframes fadeIn {{
+        from {{ opacity: 0; }}
+        to {{ opacity: 1; }}
+    }}
+    @keyframes fadeOut {{
+        from {{ opacity: 1; }}
+        to {{ opacity: 0; }}
+    }}
+    .fade-in {{
+        animation: fadeIn 0.8s ease-in forwards;
+    }}
+    .fade-out {{
+        animation: fadeOut 0.8s ease-out forwards;
+    }}
+    </style>
+
+    <div id="custom-modal" class="fade-in" style="
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, {background_opacity});
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    ">
+        <video width="{video_width}" autoplay loop muted playsinline>
+            <source src="{data_url}" type="video/webm">
+        </video>
+    </div>
+
+    <script>
+    // Dopo tot secondi, attiva la fade-out
+    setTimeout(() => {{
+        const modal = document.getElementById("custom-modal");
+        if (modal) {{
+            modal.classList.remove("fade-in");
+            modal.classList.add("fade-out");
+            setTimeout(() => modal.remove(), 800); // rimuove dopo la transizione
+        }}
+    }}, {int(duration * 1000)});
+    </script>
+    """
+
+    placeholder.markdown(modal_html, unsafe_allow_html=True)
+    time.sleep(duration + 1)  # attende la durata + fade-out
+    placeholder.empty()
+
+
+import streamlit as st
+import time
+import base64
+
+def show_modal_animation_local(gif_path, duration=3, background_opacity=0.6, gif_width=250):
+    """
+    Mostra una GIF locale centrata su sfondo scuro trasparente.
+    
+    gif_path: percorso al file .gif (locale)
+    duration: durata in secondi prima che sparisca
+    background_opacity: livello di trasparenza dello sfondo (0–1)
+    gif_width: larghezza della gif in pixel
+    """
+    placeholder = st.empty()
+
+    # Legge il file GIF e lo converte in base64
+    with open(gif_path, "rb") as f:
+        data_url = f"data:image/gif;base64,{base64.b64encode(f.read()).decode()}"
+
+    # HTML del modale
+    modal_html = f"""
+    <div style="
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, {background_opacity});
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    ">
+        <img src="{data_url}" width="{gif_width}">
+    </div>
+    """
+
+    # Mostra la GIF
+    placeholder.markdown(modal_html, unsafe_allow_html=True)
+    time.sleep(duration)
+    placeholder.empty()
 
 
 
+if st.button("🔄 Nuova Asta"):
+   show_modal_video_fade(
+        video_path="src/output.webm",  # metti qui il tuo file
+        duration=2,                   # quanto resta visibile
+        background_opacity=0,       # quanto scuro è lo sfondo
+        video_width=1080               # dimensione video
+    )
 
+st.title("Esempio GIF locale come overlay")
+
+if st.button("Mostra GIF"):
+    show_modal_animation_local("win.gif", duration=1.6, gif_width=2060)
+
+    
 
 
 
