@@ -7,6 +7,7 @@ from logic.deck import Deck
 from logic.player import Player
 from logic.robot import Robot
 
+from logic.card import *
 
 #st.title('Uber pickups in NYC')
 
@@ -21,6 +22,45 @@ from logic.auctions import Auctions
 
 # --- CONFIGURAZIONE BASE ---
 st.set_page_config(page_title="Asta tra due utenti", layout="wide")
+
+
+def final_round():
+    st.session_state.deck.draw()
+    st.session_state.card = st.session_state.deck.current_card
+    st.session_state.carte_rimaste = len(st.session_state.deck)
+    st.session_state.asta_current = 0
+    st.session_state.robot.has_passed = False
+    st.session_state.human.has_passed = False
+    st.session_state.auction.current_player = st.session_state.human
+    if not st.session_state.auction.is_bidding_possible(st.session_state.card):
+        winner = st.session_state.auction.calculate_final_score()
+        #print(winner)
+        #final_dialog(winner)
+        #st.write(f"# {winner}")
+
+
+import time
+@st.dialog("FinalPriceAuction")
+def dialog_show(text, gif_path="", timer=2.5):
+    st.write(f"# {text}")
+    if not gif_path == "":
+        st.image(gif_path)
+        time.sleep(timer)
+        final_round()
+        st.rerun()
+    else:
+        if st.button("ok"):
+            final_round()
+            st.rerun()
+
+
+@st.dialog("FinalPriceAuction")
+def final_dialog(text, gif_path="", timer=2.5):
+    st.write(f"# {text}")
+    if not gif_path == "":
+        st.image(gif_path)
+
+
 
 # st.markdown("""
 #     <style>
@@ -76,6 +116,7 @@ if "initialized" not in st.session_state:
     print(st.session_state.deck.current_card)
     #start_game()
 
+print({st.session_state.human.count_by_category()[Category.ART]})
 
 # --- INIZIALIZZAZIONE DELLO STATO ---
 
@@ -168,32 +209,118 @@ with col3:
             background-color: var(--background-color-secondary);
             color: var(--text-color);
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            margin-bottom: 15px;
             box-shadow: 0 0 8px rgba(0,0,0,0.15);
         }}
-        .stat-line {{
-            margin: 3px 0;
+        .player-header {{
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }}
+        .stats-container {{
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }}
+        .stat-block {{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }}
+        .stat-value {{
+            font-size: 1.6rem;
+            font-weight: bold;
+            line-height: 1.2;
+        }}
+        .stat-label {{
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }}
+        .cards-container {{
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            gap: 8px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 8px;
+        }}
+        .card-block {{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }}
+        .card-value {{
+            font-size: 1.2rem;
+            font-weight: bold;
+            line-height: 1.1;
+        }}
+        .card-label {{
+            font-size: 0.8rem;
+            opacity: 0.7;
         }}
         </style>
 
         <div class="player-box">
-            <h4 style="margin: 0;">🧍 Giocatore 1</h4>
-            <p class="stat-line">💰 Crediti: €{st.session_state.human.budget}</p>
-            <p class="stat-line">📊 Punteggio: {st.session_state.human.victory_points}</p>
-            <p class="stat-line">🎨 Carte Vinte: {len(st.session_state.human.cards)}</p>
+            <div class="player-header">🧍 Giocatore 1</div>
+            <div class="stats-container">
+                <div class="stat-block">
+                    <div class="stat-value">€{st.session_state.human.budget}</div>
+                    <div class="stat-label">Crediti</div>
+                </div>
+                <div class="stat-block">
+                    <div class="stat-value">{st.session_state.human.calculate_victory_points()}</div>
+                    <div class="stat-label">Punteggio</div>
+                </div>
+            </div>
+            <div class="cards-container">
+                <div class="card-block">
+                    <div class="card-value">{st.session_state.human.count_by_category()[Category.ART]}</div>
+                    <div class="card-label">Arte</div>
+                </div>
+                <div class="card-block">
+                    <div class="card-value">{st.session_state.human.count_by_category()[Category.RELIC]}</div>
+                    <div class="card-label">Reliquia</div>
+                </div>
+                <div class="card-block">
+                    <div class="card-value">{st.session_state.human.count_by_category()[Category.TECHNOLOGY]}</div>
+                    <div class="card-label">Tecnologia</div>
+                </div>
+            </div>
         </div>
 
         <div class="player-box">
-            <h4 style="margin: 0;">🧍 Giocatore 2</h4>
-            <p class="stat-line">💰 Crediti: €{st.session_state.robot.budget}</p>
-            <p class="stat-line">📊 Punteggio: {st.session_state.robot.victory_points}</p>
-            <p class="stat-line">🎨 Carte Vinte: {len(st.session_state.robot.cards)}</p>
+            <div class="player-header">🤖 Robot</div>
+            <div class="stats-container">
+                <div class="stat-block">
+                    <div class="stat-value">€{st.session_state.robot.budget}</div>
+                    <div class="stat-label">Crediti</div>
+                </div>
+                <div class="stat-block">
+                    <div class="stat-value">{st.session_state.robot.calculate_victory_points()}</div>
+                    <div class="stat-label">Punteggio</div>
+                </div>
+            </div>
+            <div class="cards-container">
+                <div class="card-block">
+                    <div class="card-value">{st.session_state.robot.count_by_category()[Category.ART]}</div>
+                    <div class="card-label">Arte</div>
+                </div>
+                <div class="card-block">
+                    <div class="card-value">{st.session_state.robot.count_by_category()[Category.RELIC]}</div>
+                    <div class="card-label">Reliquia</div>
+                </div>
+                <div class="card-block">
+                    <div class="card-value">{st.session_state.robot.count_by_category()[Category.TECHNOLOGY]}</div>
+                    <div class="card-label">Tecnologia</div>
+                </div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-
 
 
 # st.markdown(
@@ -217,48 +344,6 @@ with col3:
 #         </div>""",
 #         unsafe_allow_html=True,
 #     )
-
-import time
-import base64
-
-def show_modal_animation_local(gif_path, duration=3, background_opacity=0.6, gif_width=250):
-    """
-    Mostra una GIF locale centrata su sfondo scuro trasparente.
-    
-    gif_path: percorso al file .gif (locale)
-    duration: durata in secondi prima che sparisca
-    background_opacity: livello di trasparenza dello sfondo (0–1)
-    gif_width: larghezza della gif in pixel
-    """
-    placeholder = st.empty()
-
-    # Legge il file GIF e lo converte in base64
-    with open(gif_path, "rb") as f:
-        data_url = f"data:image/gif;base64,{base64.b64encode(f.read()).decode()}"
-
-    # HTML del modale
-    modal_html = f"""
-    <div style="
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, {background_opacity});
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    ">
-        <img src="{data_url}" width="{gif_width}">
-    </div>
-    """
-
-    # Mostra la GIF
-    placeholder.markdown(modal_html, unsafe_allow_html=True)
-    time.sleep(duration)
-    placeholder.empty()
-
-# if st.button("Mostra GIF"):
-#     show_modal_animation_local("anime.gif", duration=2.5, gif_width=2060)
 
 st.markdown("---")
 
@@ -284,23 +369,26 @@ with col1:
         if st.session_state.auction.manage_auction(st.session_state.card, "pass"):
             if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.robot, st.session_state.offerta_utente2):
                 # TODO CHIAMARE POP VITTORIA
-                pass
+              # TODO CHIAMARE POP VITTORIA
+                dialog_show("Carta Vinta", "src/util/gif/robot_win.gif")
+                #pass
             else:
                 # TODO CHIAMARE POP BRUCIATA
-                pass
+                dialog_show("Carta Bruciata", "src/util/gif/burned.gif")
+                #pass
 
-        st.session_state.deck.draw()
-        st.session_state.card = st.session_state.deck.current_card
-        st.session_state.carte_rimaste = len(st.session_state.deck)
-        st.session_state.asta_current = 0
-        st.session_state.robot.has_passed = False
-        st.session_state.human.has_passed = False
-        st.session_state.auction.current_player = st.session_state.human
-        if not st.session_state.auction.is_bidding_possible(st.session_state.card):
-             print(st.session_state.auction.calculate_final_score())
-            # TODO ANIMAZIONI
+        # st.session_state.deck.draw()
+        # st.session_state.card = st.session_state.deck.current_card
+        # st.session_state.carte_rimaste = len(st.session_state.deck)
+        # st.session_state.asta_current = 0
+        # st.session_state.robot.has_passed = False
+        # st.session_state.human.has_passed = False
+        # st.session_state.auction.current_player = st.session_state.human
+        # if not st.session_state.auction.is_bidding_possible(st.session_state.card):
+        #      print(st.session_state.auction.calculate_final_score())
+        #     # TODO ANIMAZIONI
 
-        st.rerun()
+        # st.rerun()
         #print(st.session_state.card)
 
 
@@ -327,23 +415,25 @@ with col2:
             if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.human,
                                                         st.session_state.offerta_utente1):
                 # TODO CHIAMARE POP VITTORIA
-                pass
+                dialog_show("Carta Vinta", "src/util/gif/player_win.gif")
+                #pass
             else:
                 # TODO CHIAMARE POP BRUCIATA
-                pass
+                dialog_show("Carta Bruciata", "src/util/gif/burned.gif")
+                #pass
 
-        st.session_state.deck.draw()
-        st.session_state.card = st.session_state.deck.current_card
-        st.session_state.carte_rimaste = len(st.session_state.deck)
-        st.session_state.asta_current = 0
-        st.session_state.robot.has_passed = False
-        st.session_state.human.has_passed = False
-        st.session_state.auction.current_player = st.session_state.human
-        if not st.session_state.auction.is_bidding_possible(st.session_state.card):
-            print(st.session_state.auction.calculate_final_score())
+        # st.session_state.deck.draw()
+        # st.session_state.card = st.session_state.deck.current_card
+        # st.session_state.carte_rimaste = len(st.session_state.deck)
+        # st.session_state.asta_current = 0
+        # st.session_state.robot.has_passed = False
+        # st.session_state.human.has_passed = False
+        # st.session_state.auction.current_player = st.session_state.human
+        # if not st.session_state.auction.is_bidding_possible(st.session_state.card):
+        #     print(st.session_state.auction.calculate_final_score())
         # TODO ANIMAZIONI
-
-        st.rerun()
+        #print("AAAAAAAAAAAAAAAAAAAAAAAAAa")
+        #st.rerun()
 
 
 
@@ -370,155 +460,4 @@ with col2:
 
 st.markdown("---")
 
-
-import base64
-import time
-import streamlit as st
-import time
-import base64
-
-def show_modal_video_fade(video_path, duration=4, background_opacity=0.7, video_width=400):
-    """
-    Mostra un modale con un video centrale e animazioni di fade in/out.
-    """
-    placeholder = st.empty()
-
-    # Codifica il video in base64 per l'embed diretto
-    with open(video_path, "rb") as f:
-        data_url = f"data:video/mp4;base64,{base64.b64encode(f.read()).decode()}"
-
-    modal_html = f"""
-    <style>
-    @keyframes fadeIn {{
-        from {{ opacity: 0; }}
-        to {{ opacity: 1; }}
-    }}
-    @keyframes fadeOut {{
-        from {{ opacity: 1; }}
-        to {{ opacity: 0; }}
-    }}
-    .fade-in {{
-        animation: fadeIn 0.8s ease-in forwards;
-    }}
-    .fade-out {{
-        animation: fadeOut 0.8s ease-out forwards;
-    }}
-    </style>
-
-    <div id="custom-modal" class="fade-in" style="
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, {background_opacity});
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    ">
-        <video width="{video_width}" autoplay loop muted playsinline>
-            <source src="{data_url}" type="video/webm">
-        </video>
-    </div>
-
-    <script>
-    // Dopo tot secondi, attiva la fade-out
-    setTimeout(() => {{
-        const modal = document.getElementById("custom-modal");
-        if (modal) {{
-            modal.classList.remove("fade-in");
-            modal.classList.add("fade-out");
-            setTimeout(() => modal.remove(), 800); // rimuove dopo la transizione
-        }}
-    }}, {int(duration * 1000)});
-    </script>
-    """
-
-    placeholder.markdown(modal_html, unsafe_allow_html=True)
-    time.sleep(duration + 1)  # attende la durata + fade-out
-    placeholder.empty()
-
-
-import streamlit as st
-import time
-import base64
-
-def show_modal_animation_local(gif_path, duration=3, background_opacity=0.6, gif_width=250):
-    """
-    Mostra una GIF locale centrata su sfondo scuro trasparente.
-    
-    gif_path: percorso al file .gif (locale)
-    duration: durata in secondi prima che sparisca
-    background_opacity: livello di trasparenza dello sfondo (0–1)
-    gif_width: larghezza della gif in pixel
-    """
-    placeholder = st.empty()
-
-    # Legge il file GIF e lo converte in base64
-    with open(gif_path, "rb") as f:
-        data_url = f"data:image/gif;base64,{base64.b64encode(f.read()).decode()}"
-
-    # HTML del modale
-    modal_html = f"""
-    <div style="
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, {background_opacity});
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    ">
-        <img src="{data_url}" width="{gif_width}">
-    </div>
-    """
-
-    # Mostra la GIF
-    placeholder.markdown(modal_html, unsafe_allow_html=True)
-    time.sleep(duration)
-    placeholder.empty()
-
-
-
-if st.button("🔄 Nuova Asta"):
-   show_modal_video_fade(
-        video_path="src/output.webm",  # metti qui il tuo file
-        duration=2,                   # quanto resta visibile
-        background_opacity=0,       # quanto scuro è lo sfondo
-        video_width=1080               # dimensione video
-    )
-
-st.title("Esempio GIF locale come overlay")
-
-if st.button("Mostra GIF"):
-    show_modal_animation_local("win.gif", duration=1.6, gif_width=2060)
-
-    
-
-
-
-# # --- CHIUSURA ASTA ---
-# if st.button("🔔 Chiudi Asta"):
-#     if st.session_state.offerta_utente1 > st.session_state.offerta_utente2:
-#         st.session_state.vincitore = "Utente 1"
-#     elif st.session_state.offerta_utente2 > st.session_state.offerta_utente1:
-#         st.session_state.vincitore = "Utente 2"
-#     else:
-#         st.session_state.vincitore = "Pareggio"
-
-# # --- RISULTATO ---
-# if st.session_state.vincitore:
-#     st.markdown("## 🏆 Risultato dell'Asta:")
-#     st.write(f"Offerta Utente 1: €{st.session_state.offerta_utente1}")
-#     st.write(f"Offerta Utente 2: €{st.session_state.offerta_utente2}")
-#     if st.session_state.vincitore == "Pareggio":
-#         st.warning("⚖️ L'asta è finita in pareggio!")
-#     else:
-#         st.success(f"🎉 Il vincitore è **{st.session_state.vincitore}**!")
-
-# # --- RESET ---
-# if st.button("🔄 Nuova Asta"):
-#     for key in ["offerta_utente1", "offerta_utente2", "vincitore"]:
-#         st.session_state[key] = 0 if "offerta" in key else None
-#     st.experimental_rerun()
 
