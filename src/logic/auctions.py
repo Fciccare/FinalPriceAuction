@@ -1,3 +1,5 @@
+import pandas as pd
+
 from .robot import Robot
 from .player import Player
 from .deck import Deck
@@ -16,9 +18,15 @@ class Auctions:
         #Setup Game
         self.current_player = self.human
 
+        # --- LOGGING SETUP ---
+        self.turn_number = 0
+        self.log_entry_counter = 0
+        self.log_data = []
+
     def start_game(self):
         print(f"The game begins in {self.mode} mode")
         
+        self.turn_number = 0 
         # The game continues as long as the deck is not empty (Rule 8a)
         while len(self.deck) > 0:
             
@@ -27,7 +35,9 @@ class Auctions:
                 print("Both players can no longer make bids.")
                 break # Exits the while loop
 
-            current_card = self.deck.pop(0) # Draw the first card
+            self.turn_number += 1 # Incrementa il numero dell'ASTA
+            self.deck.draw()
+            current_card = self.deck.current_card
             
             # Start the single auction
             self.manage_auction(current_card)
@@ -37,7 +47,12 @@ class Auctions:
             # self.current_player = self.robot if self.current_player == self.human else self.human
 
         # End of 'while' loop, the game is over
-        self.calculate_final_score()
+        result = self.calculate_final_score()
+
+        self._log_game_state(None, result, 0, None, None)
+
+
+        self._save_log_to_excel()
 
 
     def is_bidding_possible(self):
@@ -63,12 +78,14 @@ class Auctions:
     def manage_auction(self, card: Card):
 
         # Resetta lo stato "passato" dei giocatori
-        self.player.has_passed = False
+        self.human.has_passed = False
         self.robot.has_passed = False
 
         current_bid = 0
         highest_bidder = None
         # The auction continues until one of them has passed
+        self._log_game_state(card, "Inizio Asta", 0, None, None)
+
         while not (self.human.has_passed or self.robot.has_passed):
             
             active_player = self.current_player
@@ -77,19 +94,25 @@ class Auctions:
             can_bid = (active_player.budget >= card.starting_bid) and \
                     (active_player.budget > current_bid)
 
+            turn_log = ""
+
             if not can_bid:
                 print(f"{active_player.player_id} doesn't have enough funds and passes.")
                 active_player.has_passed = True
+                turn_log = "Pass (Fondi Insuff.)"
             else:
                 # Get the action (bid or pass)
                 action = self.get_player_action(active_player, card.starting_bid, current_bid)
                 
                 if action == "pass":
                     active_player.has_passed = True
+                    turn_log = "Pass (Volontario)"
                 else: # The action is a bid (a number)
                     current_bid = action
                     highest_bidder = active_player
                     print(f"{active_player.player_id} bids ${current_bid}")
+                    turn_log = f"Puntata ${current_bid}"
+            self._log_game_state(card, turn_log, current_bid, highest_bidder, active_player)
 
             # Change turn (Rule 2)
             self.current_player = self.robot if active_player == self.human else self.human
@@ -103,6 +126,7 @@ class Auctions:
         if winner is None:
             print(f"No bids. The card {card.card_name} is burned.")
             #self.burned_cards.append(card)
+            self._log_game_state(card, "Bruciata (Nessuna Offerta)", winning_bid, winner, None)
             return
 
         # Case 2: There is a winner, check the hidden threshold (Rule 3)
@@ -110,17 +134,20 @@ class Auctions:
             # Success! The threshold is met
             print(f"{winner.player_id} wins {card.card_name} for ${winning_bid}!")
             winner.win_card(card, winning_bid)
+            self._log_game_state(card, "Vinta", winning_bid, winner, None)
         else:
             # Failure! Threshold not met
             print(f"{winner.player_id}'s bid (${winning_bid}) did not meet the hidden threshold!")
             print(f"The card {card.card_name} is burned. The budget is not subtracted.")
             #self.burned_cards.append(card)
+            self._log_game_state(card, "Bruciata (Soglia Non Raggiunta)", winning_bid, winner, None)
 
     def calculate_final_score(self):
         if self.calculate_cooperative_victory():
+            return "Cooperative WIN"
             print("Cooperative")
         else:
-            self.calculate_competitive_victory() 
+            return self.calculate_competitive_victory() 
 
     def calculate_cooperative_victory(self):
         print("\n--- Calculating Cooperative Victory (Rule 7) ---")
@@ -133,8 +160,8 @@ class Auctions:
 
         # Count players' cards
         for player in [self.human, self.robot]:
-            for card in player.cards:
-                counts[card.category][player.player_id] = len(self.player.cards[card.category])
+            for cat, card_list in player.cards.items():
+                counts[cat][player.player_id] = len(card_list)
                 
         # Check the condition
         victory = True
@@ -151,53 +178,126 @@ class Auctions:
             return False
 
 
-    # Inside the Game class
-def calculate_competitive_victory(self):
-    print("\n--- Calculating Competitive Score (Rules 5 & 6) ---")
-    
-    human_score = 0
-    robot_score = 0
-
-    # 1. Sum VP from cards (Rule 6) - NESTED LOOP
-    # Iterate through the dictionary's values (which are lists of cards)
-    for card_list_human in self.human.cards.values():
-        for card in card_list_human:
-            human_score += card.victory_points
-            
-    for card_list_robot in self.robot.cards.values():
-        for card in card_list_robot:
-            robot_score += card.victory_points
-
-    # 2. Calculate category bonuses (Rule 5) - NOW MUCH SIMPLER
-    for cat in Category:
-        # The count is now direct, no loop needed
-        human_has = len(self.human.cards[cat])
-        robot_has = len(self.robot.cards[cat])
-
-        # Check for +20 bonus (Rule 5b)
-        if human_has == 4:
-            print(f"Human gets +20 VP (all {cat.value} cards)")
-            human_score += 20
-        elif robot_has == 4:
-            print(f"Robot gets +20 VP (all {cat.value} cards)")
-            robot_score += 20
+        # Inside the Game class
+    def calculate_competitive_victory(self):
+        print("\n--- Calculating Competitive Score (Rules 5 & 6) ---")
         
-        # Otherwise, check for +5 bonus (Rule 5a)
-        elif human_has > robot_has:
-            print(f"Human gets +5 VP (majority of {cat.value})")
-            human_score += 5
-        elif robot_has > human_has:
-            print(f"Robot gets +5 VP (majority of {cat.value})")
-            robot_score += 5
+        human_score = 0
+        robot_score = 0
 
-    # 3. Final result (unchanged)
-    print("\n--- FINAL SCORE ---")
-    print(f"Human: {human_score} VP")
-    print(f"Robot: {robot_score} VP")
-    
-    if human_score > robot_score:
-        print("The Human wins!")
-    elif robot_score > human_score:
-        print("The Robot wins!")
-    else:
-        print("It's a draw!")
+        # 1. Sum VP from cards (Rule 6) - NESTED LOOP
+        # Iterate through the dictionary's values (which are lists of cards)
+        for card_list_human in self.human.cards.values():
+            for card in card_list_human:
+                human_score += card.victory_points
+                
+        for card_list_robot in self.robot.cards.values():
+            for card in card_list_robot:
+                robot_score += card.victory_points
+
+        # 2. Calculate category bonuses (Rule 5) - NOW MUCH SIMPLER
+        for cat in Category:
+            # The count is now direct, no loop needed
+            human_has = len(self.human.cards[cat])
+            robot_has = len(self.robot.cards[cat])
+
+            # Check for +20 bonus (Rule 5b)
+            if human_has == 4:
+                print(f"Human gets +20 VP (all {cat.value} cards)")
+                human_score += 20
+            elif robot_has == 4:
+                print(f"Robot gets +20 VP (all {cat.value} cards)")
+                robot_score += 20
+            
+            # Otherwise, check for +5 bonus (Rule 5a)
+            elif human_has > robot_has:
+                print(f"Human gets +5 VP (majority of {cat.value})")
+                human_score += 5
+            elif robot_has > human_has:
+                print(f"Robot gets +5 VP (majority of {cat.value})")
+                robot_score += 5
+
+        # 3. Final result (unchanged)
+        print("\n--- FINAL SCORE ---")
+        print(f"Human: {human_score} VP")
+        print(f"Robot: {robot_score} VP")
+        winner=None
+        if human_score > robot_score:
+            winner=self.human.player_id
+            print("The Human wins!")
+        elif robot_score > human_score:
+            winner=self.robot.player_id
+            print("The Robot wins!")
+        else:
+            print("It's a draw!")
+
+        return winner
+
+
+    def _log_game_state(self, card: Card, azione: str, current_bid: int, highest_bidder: Player, player_che_agisce: Player):
+        """
+        Raccoglie lo stato attuale del gioco e lo aggiunge a self.log_data.
+        Questa funzione ora registra OGNI mossa.
+        """
+        self.log_entry_counter += 1
+        
+        human_cards = self.human.count_by_category()
+        robot_cards = self.robot.count_by_category()
+
+        # Crea un dizionario (una "riga" del nostro Excel)
+        log_row = {
+            "Log_ID": self.log_entry_counter,
+            "Asta_Num": self.turn_number,
+            "Carta_Asta": card.card_name,
+            "Categoria": card.category_name.value,
+            "Player_Azione": player_che_agisce.player_id if player_che_agisce else "Sistema",
+            "Azione": azione,
+            "Offerta_Corrente": current_bid,
+            "Miglior_Offerente": highest_bidder.player_id if highest_bidder else "Nessuno",
+            "Budget_Umano": self.human.budget,
+            "Budget_Robot": self.robot.budget,
+            "Umano_Passato": self.human.has_passed,
+            "Robot_Passato": self.robot.has_passed,
+            "Arte_Umano": human_cards.get(Category.ART, 0),
+            "Tecnologia_Umano": human_cards.get(Category.TECHNOLOGY, 0),
+            "Reliquie_Umano": human_cards.get(Category.RELIC, 0),
+            "Arte_Robot": robot_cards.get(Category.ART, 0),
+            "Tecnologia_Robot": robot_cards.get(Category.TECHNOLOGY, 0),
+            "Reliquie_Robot": robot_cards.get(Category.RELIC, 0),
+            "Carte_Mazzo": len(self.deck)
+        }
+        
+        self.log_data.append(log_row)
+
+    def _save_log_to_excel(self):
+        """
+        Converte self.log_data in un DataFrame e lo salva in un file Excel.
+        """
+        print(f"\nSalvataggio log di partita in 'game_log_dettagliato.xlsx'...")
+        if not self.log_data:
+            print("Nessun dato da loggare.")
+            return
+
+        try:
+            df = pd.DataFrame(self.log_data)
+            
+            # Imposta le colonne nell'ordine desiderato
+            colonne_ordinate = [
+                "Log_ID", "Asta_Num", "Carta_Asta", "Categoria", "Player_Azione", "Azione",
+                "Offerta_Corrente", "Miglior_Offerente", "Budget_Umano", "Budget_Robot",
+                "Umano_Passato", "Robot_Passato",
+                "Arte_Umano", "Tecnologia_Umano", "Reliquie_Umano",
+                "Arte_Robot", "Tecnologia_Robot", "Reliquie_Robot",
+                "Carte_Mazzo"
+            ]
+            # Aggiungi eventuali colonne mancanti (sebbene non dovrebbe succedere)
+            for col in colonne_ordinate:
+                if col not in df.columns:
+                    df[col] = None
+            
+            df = df[colonne_ordinate] # Riordina
+            
+            df.to_excel("game_log_dettagliato.xlsx", index=False, sheet_name="Log Aste Dettagliato")
+            print("Log salvato con successo.")
+        except Exception as e:
+            print(f"Errore durante il salvataggio del log: {e}")

@@ -1,7 +1,5 @@
-from collections import defaultdict
-from .card import Card
+from .card import *
 from .player import Player
-from typing import List
 
 class Robot(Player):
 
@@ -22,6 +20,6 @@ class Robot(Player):
 
     def __repr__(self):
         return (f"Robot('{self.player_id}', Tipologia='{self.type_R}', "
-                f"budget={self.budget}, Arte={len(self.cards['Arte'])}, "
-                f"Tecnologia={len(self.cards['Tecnologia'])}, "
-                f"Reliquie={len(self.cards['Reliquie'])})")
+                f"budget={self.budget}, Arte={len(self.cards[Category.ART])}, "
+                f"Tecnologia={len(self.cards[Category.TECHNOLOGY])}, "
+                f"Reliquie={len(self.cards[Category.RELIC])})")

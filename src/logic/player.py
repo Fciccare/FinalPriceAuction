@@ -36,19 +36,14 @@ class Player:
         """
         Aggiorna lo stato del giocatore dopo aver vinto una carta.
         """
-        if(card.heat_requirement <= cost):
-            self.budget -= cost
+        self.budget -= cost
 
-            if "Arte" in card.category_name:
-                self.cards[Category.ART].append(card)
-            elif "Tecnologia" in card.category_name :
-                self.cards[Category.TECHNOLOGY].append(card)
-            elif "Reliquia" in card.category_name:
+        if "Arte" in card.category_name:
+            self.cards[Category.ART].append(card)
+        elif "Tecnologia" in card.category_name :
+            self.cards[Category.TECHNOLOGY].append(card)
+        elif "Reliquia" in card.category_name:
                 self.cards[Category.RELIC].append(card)
-
-            return True
-        else:
-            return False
 
     #  CALCOLO PUNTEGGIO FINALE
     def calculate_victory_points(self):
@@ -69,6 +64,6 @@ class Player:
 
     def __repr__(self):
         return (f"Player('{self.player_id}', budget={self.budget}, "
-                f"Arte={len(self.cards['Arte'])}, "
-                f"Tecnologia={len(self.cards['Tecnologia'])}, "
-                f"Reliquie={len(self.cards['Reliquie'])})")
+                f"Arte={len(self.cards[Category.ART])}, "
+                f"Tecnologia={len(self.cards[Category.TECHNOLOGY])}, "
+                f"Reliquie={len(self.cards[Category.RELIC])})")
