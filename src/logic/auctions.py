@@ -6,10 +6,11 @@ from .deck import Deck
 from .card import *
 
 class Auctions:
-    def __init__(self, budget_umano, budget_robot, modalita_cooperativa=False):
+    def __init__(self, budget_umano=1000, budget_robot=1000, modalita_cooperativa=False):
+
         # Setup players
-        self.human = Player("Umano", 0 , 1000)
-        self.robot =  Robot("Mirokai", 0 , 1000, "competitive")
+        self.human = Player("Umano", 0 , budget_umano)
+        self.robot =  Robot("Mirokai", 0 , budget_robot, "competitive")
         
         # Setup deck
         self.deck = Deck.load_from_json("deck_1.json")
@@ -17,6 +18,8 @@ class Auctions:
         
         #Setup Game
         self.current_player = self.human
+        self.current_bid = 0
+        self.highest_bidder = None
 
         # --- LOGGING SETUP ---
         self.turn_number = 0
@@ -24,27 +27,13 @@ class Auctions:
         self.log_data = []
 
     def start_game(self):
-        print(f"The game begins in {self.mode} mode")
-        
-        self.turn_number = 0 
-        # The game continues as long as the deck is not empty (Rule 8a)
-        while len(self.deck) > 0:
-            
-            # Check end condition (Rule 8b)
-            if not self.is_bidding_possible():
-                print("Both players can no longer make bids.")
-                break # Exits the while loop
 
-            self.turn_number += 1 # Incrementa il numero dell'ASTA
-            self.deck.draw()
-            current_card = self.deck.current_card
-            
-            # Start the single auction
-            self.manage_auction(current_card)
-            
-            # Reset who starts the next auction (Rule 1 only says who starts the *game*)
-            # You could alternate who makes the first offer, for example:
-            # self.current_player = self.robot if self.current_player == self.human else self.human
+        # Start the single auction
+        self.manage_auction()
+
+        # Reset who starts the next auction (Rule 1 only says who starts the *game*)
+        # You could alternate who makes the first offer, for example:
+        # self.current_player = self.robot if self.current_player == self.human else self.human
 
         # End of 'while' loop, the game is over
         result = self.calculate_final_score()
@@ -55,7 +44,7 @@ class Auctions:
         self._save_log_to_excel()
 
 
-    def is_bidding_possible(self):
+    def is_bidding_possible(self, card: Card):
         """
         Controlla se almeno un giocatore può fare un'offerta sulla prossima carta.
         Questo implementa la logica per la Regola 8b e 8c.
@@ -66,7 +55,7 @@ class Auctions:
             return False
             
         # Controlliamo la base d'asta della *prossima* carta (senza estrarla)
-        next_card_starting_bid = self.deck[0].starting_bid # o .base_asta
+        next_card_starting_bid = card.starting_bid # o .base_asta
 
         human_can_bid = self.human.budget >= next_card_starting_bid
         robot_can_bid = self.robot.budget >= next_card_starting_bid
@@ -75,51 +64,37 @@ class Auctions:
         # Ritorna True se almeno uno dei due può fare un'offerta
         return human_can_bid or robot_can_bid
 
-    def manage_auction(self, card: Card):
-
+    def manage_auction(self, card: Card, action):
         # Resetta lo stato "passato" dei giocatori
-        self.human.has_passed = False
-        self.robot.has_passed = False
+        active_player = self.current_player
+        turn_log = ""
 
-        current_bid = 0
-        highest_bidder = None
-        # The auction continues until one of them has passed
-        self._log_game_state(card, "Inizio Asta", 0, None, None)
-
-        while not (self.human.has_passed or self.robot.has_passed):
-            
-            active_player = self.current_player
-            
-            # Check if the player can bid (budget >= starting_bid AND budget > current_bid)
-            can_bid = (active_player.budget >= card.starting_bid) and \
-                    (active_player.budget > current_bid)
-
-            turn_log = ""
-
-            if not can_bid:
-                print(f"{active_player.player_id} doesn't have enough funds and passes.")
-                active_player.has_passed = True
-                turn_log = "Pass (Fondi Insuff.)"
+        if action == "pass":
+            active_player.has_passed = True
+            turn_log = "Pass (Volontario)"
+        else:  # The action is a bid (a number)
+            self.current_bid = action
+            if active_player.can_bid(action):
+                self.highest_bidder = active_player
+                print(f"{active_player.player_id} bids ${self.current_bid}")
+                turn_log = f"Puntata ${self.current_bid}"
             else:
-                # Get the action (bid or pass)
-                action = self.get_player_action(active_player, card.starting_bid, current_bid)
-                
-                if action == "pass":
-                    active_player.has_passed = True
-                    turn_log = "Pass (Volontario)"
-                else: # The action is a bid (a number)
-                    current_bid = action
-                    highest_bidder = active_player
-                    print(f"{active_player.player_id} bids ${current_bid}")
-                    turn_log = f"Puntata ${current_bid}"
-            self._log_game_state(card, turn_log, current_bid, highest_bidder, active_player)
+                return False
 
-            # Change turn (Rule 2)
-            self.current_player = self.robot if active_player == self.human else self.human
+        self._log_game_state(card, turn_log, self.current_bid, self.highest_bidder, active_player)
+        self.current_player = self.robot if active_player == self.human else self.human
+        return True
 
-        # --- End of while loop: Auction finished ---
-        self.resolve_auction(card, highest_bidder, current_bid)
-
+    def can_bid(self, active_player, card, current_bid):
+           if (active_player.budget >= card.starting_bid) and (active_player.budget > current_bid):
+               return True
+           else:
+               print(f"{active_player.player_id} doesn't have enough funds and passes.")
+               active_player.has_passed = True
+               turn_log = "Pass (Fondi Insuff.)"
+               self._log_game_state(card, turn_log, current_bid, self.highest_bidder, active_player)
+               self.current_player = self.robot if active_player == self.human else self.human
+               return False
 
     def resolve_auction(self, card, winner, winning_bid):
         # Case 1: Nobody bid (e.g., both pass immediately)
@@ -127,20 +102,21 @@ class Auctions:
             print(f"No bids. The card {card.card_name} is burned.")
             #self.burned_cards.append(card)
             self._log_game_state(card, "Bruciata (Nessuna Offerta)", winning_bid, winner, None)
-            return
-
+            return False
         # Case 2: There is a winner, check the hidden threshold (Rule 3)
-        if winning_bid >= card.hidden_threshold:
+        if winning_bid >= card.heat_requirement:
             # Success! The threshold is met
             print(f"{winner.player_id} wins {card.card_name} for ${winning_bid}!")
             winner.win_card(card, winning_bid)
             self._log_game_state(card, "Vinta", winning_bid, winner, None)
+            return True
         else:
             # Failure! Threshold not met
-            print(f"{winner.player_id}'s bid (${winning_bid}) did not meet the hidden threshold!")
+            print(f"{winner.player_id}'s bid (${winning_bid}) did not meet the heat requirement!")
             print(f"The card {card.card_name} is burned. The budget is not subtracted.")
             #self.burned_cards.append(card)
             self._log_game_state(card, "Bruciata (Soglia Non Raggiunta)", winning_bid, winner, None)
+            return False
 
     def calculate_final_score(self):
         if self.calculate_cooperative_victory():

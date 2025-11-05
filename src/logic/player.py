@@ -38,11 +38,11 @@ class Player:
         """
         self.budget -= cost
 
-        if "Arte" in card.category_name:
+        if Category.ART == card.category_name:
             self.cards[Category.ART].append(card)
-        elif "Tecnologia" in card.category_name :
+        elif Category.TECHNOLOGY == card.category_name :
             self.cards[Category.TECHNOLOGY].append(card)
-        elif "Reliquia" in card.category_name:
+        elif Category.RELIC == card.category_name:
                 self.cards[Category.RELIC].append(card)
 
     #  CALCOLO PUNTEGGIO FINALE

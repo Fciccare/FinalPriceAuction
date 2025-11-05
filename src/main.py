@@ -16,7 +16,8 @@ from logic.robot import Robot
 #subprocess.Popen(["streamlit", "run", filename, os.devnull])
 import streamlit as st
 import streamlit_shadcn_ui as ui
-from streamlit_lottie import st_lottie
+
+from logic.auctions import Auctions
 
 # --- CONFIGURAZIONE BASE ---
 st.set_page_config(page_title="Asta tra due utenti", layout="wide")
@@ -46,27 +47,39 @@ st.set_page_config(page_title="Asta tra due utenti", layout="wide")
 if "initialized" not in st.session_state:
     st.session_state.initialized = True
 
+    if "auction" not in st.session_state:
+        st.session_state.auction = Auctions()
+
     if "player" not in st.session_state:
-        st.session_state.player = Player("Umano", 0 , 1000)
+        # st.session_state.player = Player("Umano", 0 , 1000)
+        st.session_state.human = st.session_state.auction.human
 
     if "robot" not in st.session_state:
-        st.session_state.robot = Robot("Robot", 0 , 1000, "competitive")
+        # st.session_state.robot = Robot("Robot", 0 , 1000, "competitive")
+        st.session_state.robot = st.session_state.auction.robot
 
     if "deck" not in st.session_state:
-        deck = Deck.load_from_json("deck_1.json")
-        deck.shuffle()
-        st.session_state.deck=deck
+        # deck = Deck.load_from_json("deck_1.json")
+        # deck.shuffle()
+        # st.session_state.deck = deck
+        # st.session_state.deck.draw()
+        st.session_state.deck = st.session_state.auction.deck
         st.session_state.deck.draw()
 
-    #if "card" not in st.session_state:
-        #st.session_state.card = st.session_state.deck.current_card
-
+    if "card" not in st.session_state:
+        st.session_state.card = st.session_state.deck.current_card
+        st.session_state.auction._log_game_state(st.session_state.card, "Inizio Asta", 0, None, None)
+        if not st.session_state.auction.is_bidding_possible(st.session_state.card):
+            print(st.session_state.auction.calculate_final_score())
+            #TODO ANIMAZIONI
 
     print(st.session_state.deck.current_card)
     #start_game()
 
 
 # --- INIZIALIZZAZIONE DELLO STATO ---
+
+
 if "offerta_utente1" not in st.session_state:
     st.session_state.offerta_utente1 = 0
 if "offerta_utente2" not in st.session_state:
@@ -77,13 +90,13 @@ if "vincitore" not in st.session_state:
 if "minimo_asta" not in st.session_state:
     st.session_state.minimo_asta = st.session_state.deck.current_card.starting_bid  # base d'asta
 
-if "asta_corrent" not in st.session_state:
-    st.session_state.asta_corrent = 0
+if "asta_current" not in st.session_state:
+    st.session_state.asta_current = 0
 
 if "carte_rimaste" not in st.session_state:
     st.session_state.carte_rimaste = len(st.session_state.deck)
 if "crediti_utente1" not in st.session_state:
-    st.session_state.crediti_utente1 = st.session_state.player.budget
+    st.session_state.crediti_utente1 = st.session_state.human.budget
 if "crediti_utente2" not in st.session_state:
     st.session_state.crediti_utente2 = st.session_state.robot.budget
 
@@ -137,7 +150,7 @@ with col2:
         f"""
         <div class="card-box">
             <h4 style="margin: 0;">💰 Puntata Minima: {st.session_state.deck.current_card.starting_bid}</h4>
-            <h4 style="margin: 0;">💰 Puntata Corrente: {st.session_state.asta_corrent}</h4>
+            <h4 style="margin: 0;">💰 Puntata Corrente: {st.session_state.asta_current}</h4>
         </div>
         """,
         unsafe_allow_html=True
@@ -166,9 +179,9 @@ with col3:
 
         <div class="player-box">
             <h4 style="margin: 0;">🧍 Giocatore 1</h4>
-            <p class="stat-line">💰 Crediti: €{st.session_state.player.budget}</p>
-            <p class="stat-line">📊 Punteggio: {st.session_state.player.victory_points}</p>
-            <p class="stat-line">🎨 Carte Vinte: {len(st.session_state.player.cards)}</p>
+            <p class="stat-line">💰 Crediti: €{st.session_state.human.budget}</p>
+            <p class="stat-line">📊 Punteggio: {st.session_state.human.victory_points}</p>
+            <p class="stat-line">🎨 Carte Vinte: {len(st.session_state.human.cards)}</p>
         </div>
 
         <div class="player-box">
@@ -253,25 +266,40 @@ st.markdown("---")
 col1, col2 = st.columns(2)
 with col1:
     st.subheader("👤 Utente 1")
-    offerta1 = st.number_input("Inserisci la tua offerta (€)", min_value=0, key="input1")
-    if st.button("Offri come Utente 1", 1):
-        if offerta1 >= st.session_state.deck.current_card.starting_bid  and offerta1 > st.session_state.asta_corrent and st.session_state.player.can_bid(offerta1):
-            st.session_state.offerta_utente1 = offerta1
-            st.session_state.asta_corrent = offerta1
-            st.success(f"Hai offerto €{offerta1}")
-            st.rerun()  # 👈 forza Streamlit a ridisegnare tutto
-        else:
-            #st.error("L'offerta deve essere superiore al minimo e all'altra offerta.")
-            st.warning("L'offerta non è valida", icon="⚠️")
+    if not st.session_state.auction.can_bid(st.session_state.human, st.session_state.card, st.session_state.asta_current):
+        pass #can bid is false # TODO STUT O PULSANT BUCCHI
+    else:
+        offerta1 = st.number_input("Inserisci la tua offerta (€)", min_value=0, key="input1")
+        if st.button("Offri come Utente 1", 1):
+            if st.session_state.auction.manage_auction(st.session_state.card, offerta1):
+                st.session_state.offerta_utente1 = offerta1
+                st.session_state.asta_current = offerta1
+                st.success(f"Hai offerto €{offerta1}")
+                st.rerun()
+            else:
+                # st.error("L'offerta deve essere superiore al minimo e all'altra offerta.")
+                st.warning("L'offerta non è valida", icon="⚠️")
 
     if st.button("Passa Utente 1", 2):
-        if(st.session_state.robot.win_card(st.session_state.deck.current_card, st.session_state.offerta_utente2)):
-            st.success("Utente 2 hai vinto la card", icon="🎉")
-        else:
-            st.warning("Carta bruciata", icon="🔥")
+        if st.session_state.auction.manage_auction(st.session_state.card, "pass"):
+            if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.robot, st.session_state.offerta_utente2):
+                # TODO CHIAMARE POP VITTORIA
+                pass
+            else:
+                # TODO CHIAMARE POP BRUCIATA
+                pass
+
         st.session_state.deck.draw()
+        st.session_state.card = st.session_state.deck.current_card
         st.session_state.carte_rimaste = len(st.session_state.deck)
-        st.session_state.asta_corrent=0
+        st.session_state.asta_current = 0
+        st.session_state.robot.has_passed = False
+        st.session_state.human.has_passed = False
+        st.session_state.auction.current_player = st.session_state.human
+        if not st.session_state.auction.is_bidding_possible(st.session_state.card):
+             print(st.session_state.auction.calculate_final_score())
+            # TODO ANIMAZIONI
+
         st.rerun()
         #print(st.session_state.card)
 
@@ -279,28 +307,66 @@ with col1:
 # --- SEZIONE UTENTE 2 ---
 with col2:
     st.subheader("👤 Utente 2")
-    offerta2 = st.number_input("Inserisci la tua offerta (€)", min_value=0, key="input2")
-    if st.button("Offri come Utente 2", 3):
-        if offerta2 >= st.session_state.deck.current_card.starting_bid  and offerta2 > st.session_state.asta_corrent and st.session_state.robot.can_bid(offerta2):
-            st.session_state.offerta_utente2 = offerta2
-            st.session_state.asta_corrent = offerta2
-            st.success(f"Hai offerto €{offerta2}")
-            st.rerun()  # 👈 forza Streamlit a ridisegnare tutto
-        else:
-            #st.error("L'offerta deve essere superiore al minimo e all'altra offerta.")
-            st.warning("L'offerta non è valida", icon="⚠️")
+    if not st.session_state.auction.can_bid(st.session_state.robot, st.session_state.card,
+                                            st.session_state.asta_current):
+        pass  # can bid is false # TODO STUT O PULSANT BUCCHI
+    else:
+        offerta2 = st.number_input("Inserisci la tua offerta (€)", min_value=0, key="input2")
+        if st.button("Offri come Utente 2", 3):
+            if st.session_state.auction.manage_auction(st.session_state.card, offerta2):
+                st.session_state.offerta_utente2 = offerta2
+                st.session_state.asta_current = offerta2
+                st.success(f"Hai offerto €{offerta2}")
+                st.rerun()
+            else:
+                # st.error("L'offerta deve essere superiore al minimo e all'altra offerta.")
+                st.warning("L'offerta non è valida", icon="⚠️")
 
     if st.button("Passa Utente 2", 4):
-        if(st.session_state.player.win_card(st.session_state.deck.current_card, st.session_state.offerta_utente1)):
-            st.success("Utente 1 hai vinto la card", icon="🎉")
-            #if st.button("Mostra GIF"):
-            show_modal_animation_local("anime.gif", duration=2.5, gif_width=2060)
-        else:
-            st.warning("Carta bruciata", icon="🔥")
+        if st.session_state.auction.manage_auction(st.session_state.card, "pass"):
+            if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.human,
+                                                        st.session_state.offerta_utente1):
+                # TODO CHIAMARE POP VITTORIA
+                pass
+            else:
+                # TODO CHIAMARE POP BRUCIATA
+                pass
+
         st.session_state.deck.draw()
+        st.session_state.card = st.session_state.deck.current_card
         st.session_state.carte_rimaste = len(st.session_state.deck)
-        st.session_state.asta_corrent=0
+        st.session_state.asta_current = 0
+        st.session_state.robot.has_passed = False
+        st.session_state.human.has_passed = False
+        st.session_state.auction.current_player = st.session_state.human
+        if not st.session_state.auction.is_bidding_possible(st.session_state.card):
+            print(st.session_state.auction.calculate_final_score())
+        # TODO ANIMAZIONI
+
         st.rerun()
+
+
+
+    #     if offerta2 >= st.session_state.deck.current_card.starting_bid  and offerta2 > st.session_state.asta_current and st.session_state.robot.can_bid(offerta2):
+    #         st.session_state.offerta_utente2 = offerta2
+    #         st.session_state.asta_current = offerta2
+    #         st.success(f"Hai offerto €{offerta2}")
+    #         st.rerun()  # 👈 forza Streamlit a ridisegnare tutto
+    #     else:
+    #         #st.error("L'offerta deve essere superiore al minimo e all'altra offerta.")
+    #         st.warning("L'offerta non è valida", icon="⚠️")
+    #
+    # if st.button("Passa Utente 2", 4):
+    #     if(st.session_state.human.win_card(st.session_state.deck.current_card, st.session_state.offerta_utente1)):
+    #         st.success("Utente 1 hai vinto la card", icon="🎉")
+    #         #if st.button("Mostra GIF"):
+    #         show_modal_animation_local("anime.gif", duration=2.5, gif_width=2060)
+    #     else:
+    #         st.warning("Carta bruciata", icon="🔥")
+    #     st.session_state.deck.draw()
+    #     st.session_state.carte_rimaste = len(st.session_state.deck)
+    #     st.session_state.asta_current=0
+    #     st.rerun()
 
 st.markdown("---")
 
