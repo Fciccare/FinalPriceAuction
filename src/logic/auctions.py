@@ -23,7 +23,7 @@ class Auctions:
         self.highest_bidder = None
 
         # --- LOGGING SETUP ---
-        self.turn_number = 0
+        self.turn_number = 1
         self.log_entry_counter = 0
         self.log_data = []
 
@@ -80,18 +80,23 @@ class Auctions:
                     self.highest_bidder = active_player
                     print(f"{active_player.player_id} bids ${self.current_bid}")
                     turn_log = f"Puntata ${self.current_bid}"
+                    print(active_player.player_id + " - "+ turn_log)
                 else:
+                    print("Cant'Bid for ammount: " + active_player.player_id)
                     return False
             else:
+                print("Cant'Bid: " + active_player.player_id)
                 return False
 
         self._log_game_state(card, turn_log, self.current_bid, self.highest_bidder, active_player)
+        print("CURRENT PLAYER: ", self.current_player)
         self.current_player = self.robot if active_player == self.human else self.human
+        print("CURRENT PLAYER: ", self.current_player)
         return True
 
     def can_bid(self, active_player, card, current_bid):
            if (active_player.budget >= card.starting_bid) and (active_player.budget > current_bid):
-               return True
+                return True
            else:
                print(f"{active_player.player_id} doesn't have enough funds and passes.")
                active_player.has_passed = True
@@ -106,6 +111,9 @@ class Auctions:
             print(f"No bids. The card {card.card_name} is burned.")
             #self.burned_cards.append(card)
             self._log_game_state(card, "Bruciata (Nessuna Offerta)", winning_bid, winner, None)
+            self.current_bid=0
+            self.highest_bidder = None
+            self.turn_number += 1
             return False
         # Case 2: There is a winner, check the hidden threshold (Rule 3)
         if winning_bid >= card.heat_requirement:
@@ -113,6 +121,9 @@ class Auctions:
             print(f"{winner.player_id} wins {card.card_name} for ${winning_bid}!")
             winner.win_card(card, winning_bid)
             self._log_game_state(card, "Vinta", winning_bid, winner, None)
+            self.current_bid=0
+            self.highest_bidder = None
+            self.turn_number += 1
             return True
         else:
             # Failure! Threshold not met
@@ -120,6 +131,9 @@ class Auctions:
             print(f"The card {card.card_name} is burned. The budget is not subtracted.")
             #self.burned_cards.append(card)
             self._log_game_state(card, "Bruciata (Soglia Non Raggiunta)", winning_bid, winner, None)
+            self.current_bid=0
+            self.highest_bidder = None
+            self.turn_number += 1
             return False
 
     def calculate_final_score(self):
@@ -130,7 +144,7 @@ class Auctions:
             
         else:
             winner = self.calculate_competitive_victory()
-            self._log_game_state(None, winner, 0, None, None)
+            self._log_game_state(None, winner[0], 0, None, None)
             self._save_log_to_excel()
             return  winner
 
@@ -247,9 +261,11 @@ class Auctions:
             "Arte_Umano": human_cards.get(Category.ART, 0),
             "Tecnologia_Umano": human_cards.get(Category.TECHNOLOGY, 0),
             "Reliquie_Umano": human_cards.get(Category.RELIC, 0),
+            "Punti_Umano": self.human.calculate_victory_points(),
             "Arte_Robot": robot_cards.get(Category.ART, 0),
             "Tecnologia_Robot": robot_cards.get(Category.TECHNOLOGY, 0),
             "Reliquie_Robot": robot_cards.get(Category.RELIC, 0),
+            "Punti_Robot": self.robot.calculate_victory_points(),
             "Carte_Mazzo": len(self.deck)
         }
         
@@ -265,9 +281,9 @@ class Auctions:
             return
         
         base_dir = os.path.dirname(__file__)
-        full_path = os.path.join(base_dir, "..", "util", "user_number")
+        full_path = os.path.join(base_dir, "..", "util", "user_number.txt")
         full_path = os.path.abspath(full_path)
-
+        print(full_path)
         self.run_number = self.get_current_run_number(full_path)
         # Formatta il numero con zeri (es. 1 -> "001", 12 -> "012")
         run_number_str = str(self.run_number).zfill(3) 
@@ -295,8 +311,8 @@ class Auctions:
                 "Log_ID", "Asta_Num", "Carta_Asta", "Categoria", "Player_Azione", "Azione",
                 "Offerta_Corrente", "Miglior_Offerente", "Budget_Umano", "Budget_Robot",
                 "Umano_Passato", "Robot_Passato",
-                "Arte_Umano", "Tecnologia_Umano", "Reliquie_Umano",
-                "Arte_Robot", "Tecnologia_Robot", "Reliquie_Robot",
+                "Arte_Umano", "Tecnologia_Umano", "Reliquie_Umano", "Punti_Umano",
+                "Arte_Robot", "Tecnologia_Robot", "Reliquie_Robot", "Punti_Robot",
                 "Carte_Mazzo"
             ]
             # Aggiungi eventuali colonne mancanti (sebbene non dovrebbe succedere)
@@ -312,7 +328,7 @@ class Auctions:
             print(f"Errore durante il salvataggio del log: {e}")
 
 
-    def get_current_run_number(file_path):
+    def get_current_run_number(self, file_path):
         """Legge il numero di run attuale dal file counter."""
         try:
             with open(file_path, "r") as f:
@@ -324,7 +340,7 @@ class Auctions:
             # File non trovato o contenuto non valido (es. "abc")
             return 1 # Inizia da 1
 
-    def increment_run_number(file_path, current_number):
+    def increment_run_number(self, file_path, current_number):
         """Incrementa e salva il numero per la prossima run."""
         next_number = current_number + 1
         try:

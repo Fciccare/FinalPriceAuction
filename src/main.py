@@ -25,6 +25,8 @@ st.set_page_config(page_title="Asta tra due utenti", layout="wide")
 
 
 def final_round():
+    if not st.session_state.auction.is_bidding_possible(st.session_state.card):
+        winner = st.session_state.auction.calculate_final_score()
     st.session_state.deck.draw()
     st.session_state.card = st.session_state.deck.current_card
     st.session_state.carte_rimaste = len(st.session_state.deck)
@@ -32,8 +34,10 @@ def final_round():
     st.session_state.robot.has_passed = False
     st.session_state.human.has_passed = False
     st.session_state.auction.current_player = st.session_state.human
-    if not st.session_state.auction.is_bidding_possible(st.session_state.card):
-        winner = st.session_state.auction.calculate_final_score()
+    st.session_state.auction.current_bid = 0
+    st.session_state.auction.highest_bidder = None
+
+    
         #print(winner)
         #final_dialog(winner)
         #st.write(f"# {winner}")
