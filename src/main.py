@@ -24,6 +24,20 @@ from logic.auctions import Auctions
 st.set_page_config(page_title="Asta tra due utenti", layout="wide")
 
 
+st.html('''
+<style>
+video::-webkit-media-controls {
+    display: none !important;
+}
+video::-webkit-media-controls-panel {
+    display: none !important;
+}
+video::-webkit-media-controls-play-button {
+    display: none !important;
+}
+</style>
+''')
+
 def final_round():
     if not st.session_state.auction.is_bidding_possible(st.session_state.card):
         st.session_state.winner = st.session_state.auction.calculate_final_score()
@@ -60,11 +74,25 @@ def dialog_show(text, gif_path="", timer=2.5):
             st.rerun()
 
 
-@st.dialog("FinalPriceAuction", dismissible=False)
-def final_dialog(text, gif_path="", timer=2.5):
+@st.dialog("FinalPriceAuction")
+def dialog_show_webm(text, webm="", timer=2.5):
     st.write(f"# {text}")
-    if not gif_path == "":
-        st.image(gif_path)
+    if not webm == "":
+        st.video(webm, loop=True, autoplay=True)
+        time.sleep(timer)
+        final_round()
+        st.rerun()
+    else:
+        if st.button("ok"):
+            final_round()
+            st.rerun()
+
+
+@st.dialog("FinalPriceAuction", dismissible=False)
+def final_dialog(text, webm=""):
+    st.write(f"# {text}")
+    if not webm == "":
+        st.video(webm, loop=True, autoplay=True)
 
 
 
@@ -89,6 +117,16 @@ def final_dialog(text, gif_path="", timer=2.5):
 
 #st.title("🃏 Asta per una Carta")
 
+if "winner" in st.session_state:
+    winner = st.session_state.winner
+    if winner=="Cooperative WIN":
+        final_dialog("Avete vinto entambi collaborando", "src/util/webm/both_winner.webm")
+    elif winner=="Pareggio":
+        final_dialog("Avete pareggiato")
+    elif winner=="Umano":
+        final_dialog("Hai vinto la partita", "src/util/webm/player_winner.webm")
+    elif winner=="Robot":
+        final_dialog("Ha vinto il robot", "src/util/webm/robot_winner.webm")
 
 if "initialized" not in st.session_state:
     st.session_state.initialized = True
@@ -126,8 +164,7 @@ print({st.session_state.human.count_by_category()[Category.ART]})
 
 # --- INIZIALIZZAZIONE DELLO STATO ---
 
-if "winner" in st.session_state:
-    final_dialog("Vittoria di qualcuno")
+
 
 if "offerta_utente1" not in st.session_state:
     st.session_state.offerta_utente1 = 0
@@ -378,11 +415,11 @@ with col1:
             if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.robot, st.session_state.offerta_utente2):
                 # TODO CHIAMARE POP VITTORIA
               # TODO CHIAMARE POP VITTORIA
-                dialog_show("Carta Vinta", "src/util/gif/robot_win.gif")
+                dialog_show_webm("Il Robot ha vinto una carta", "src/util/webm/robot_win.webm")
                 #pass
             else:
                 # TODO CHIAMARE POP BRUCIATA
-                dialog_show("Carta Bruciata", "src/util/gif/burned.gif")
+                dialog_show_webm("La Carta è stata bruciata", "src/util/webm/burned.webm")
                 #pass
 
         # st.session_state.deck.draw()
@@ -402,13 +439,13 @@ with col1:
 
 # --- SEZIONE UTENTE 2 ---
 with col2:
-    st.subheader("👤 Utente 2")
+    st.subheader("🤖Robot")
     if not st.session_state.auction.can_bid(st.session_state.robot, st.session_state.card,
                                             st.session_state.asta_current):
         pass  # can bid is false # TODO STUT O PULSANT BUCCHI
     else:
         offerta2 = st.number_input("Inserisci la tua offerta (€)", min_value=0, key="input2")
-        if st.button("Offri come Utente 2", 3):
+        if st.button("Offri come Robot", 3):
             if st.session_state.auction.manage_auction(st.session_state.card, offerta2):
                 st.session_state.offerta_utente2 = offerta2
                 st.session_state.asta_current = offerta2
@@ -418,16 +455,16 @@ with col2:
                 # st.error("L'offerta deve essere superiore al minimo e all'altra offerta.")
                 st.warning("L'offerta non è valida", icon="⚠️")
 
-    if st.button("Passa Utente 2", 4):
+    if st.button("Passa Robot", 4):
         if st.session_state.auction.manage_auction(st.session_state.card, "pass"):
             if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.human,
                                                         st.session_state.offerta_utente1):
                 # TODO CHIAMARE POP VITTORIA
-                dialog_show("Carta Vinta", "src/util/gif/player_win.gif")
+                dialog_show_webm("Hai vinto una carta", "src/util/webm/player_win.webm")
                 #pass
             else:
                 # TODO CHIAMARE POP BRUCIATA
-                dialog_show("Carta Bruciata", "src/util/gif/burned.gif")
+                dialog_show_webm("La Carta è stata bruciata", "src/util/webm/burned.webm")
                 #pass
 
         # st.session_state.deck.draw()

@@ -146,7 +146,7 @@ class Auctions:
 
         else:
             winner = self.calculate_competitive_victory()
-            self._log_game_state(None, winner[0], 0, None, None)
+            self._log_game_state(None, winner, 0, None, None)
             self._save_log_to_excel()
             return  winner
 
@@ -232,8 +232,7 @@ class Auctions:
         else:
             winner = "Pareggio"
             print("It's a draw!")
-
-        return winner, human_score, robot_score
+        return winner
 
 
     def _log_game_state(self, card: Card, azione: str, current_bid: int, highest_bidder: Player, player_che_agisce: Player):
