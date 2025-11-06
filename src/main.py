@@ -26,7 +26,8 @@ st.set_page_config(page_title="Asta tra due utenti", layout="wide")
 
 def final_round():
     if not st.session_state.auction.is_bidding_possible(st.session_state.card):
-        winner = st.session_state.auction.calculate_final_score()
+        st.session_state.winner = st.session_state.auction.calculate_final_score()
+        
     st.session_state.deck.draw()
     st.session_state.card = st.session_state.deck.current_card
     st.session_state.carte_rimaste = len(st.session_state.deck)
@@ -36,7 +37,8 @@ def final_round():
     st.session_state.auction.current_player = st.session_state.human
     st.session_state.auction.current_bid = 0
     st.session_state.auction.highest_bidder = None
-
+    st.session_state.offerta_utente1=0
+    st.session_state.offerta_utente2=0
     
         #print(winner)
         #final_dialog(winner)
@@ -58,7 +60,7 @@ def dialog_show(text, gif_path="", timer=2.5):
             st.rerun()
 
 
-@st.dialog("FinalPriceAuction")
+@st.dialog("FinalPriceAuction", dismissible=False)
 def final_dialog(text, gif_path="", timer=2.5):
     st.write(f"# {text}")
     if not gif_path == "":
@@ -124,6 +126,8 @@ print({st.session_state.human.count_by_category()[Category.ART]})
 
 # --- INIZIALIZZAZIONE DELLO STATO ---
 
+if "winner" in st.session_state:
+    final_dialog("Vittoria di qualcuno")
 
 if "offerta_utente1" not in st.session_state:
     st.session_state.offerta_utente1 = 0
