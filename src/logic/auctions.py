@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 from .robot import Robot
 from .player import Player
@@ -123,10 +124,15 @@ class Auctions:
 
     def calculate_final_score(self):
         if self.calculate_cooperative_victory():
+            self._log_game_state(None, "Cooperative WIN", 0, None, None)
+            self._save_log_to_excel()
             return "Cooperative WIN"
-            print("Cooperative")
+            
         else:
-            return self.calculate_competitive_victory() 
+            winner = self.calculate_competitive_victory()
+            self._log_game_state(None, winner, 0, None, None)
+            self._save_log_to_excel()
+            return  winner
 
     def calculate_cooperative_victory(self):
         print("\n--- Calculating Cooperative Victory (Rule 7) ---")
@@ -202,15 +208,16 @@ class Auctions:
         print(f"Robot: {robot_score} VP")
         winner=None
         if human_score > robot_score:
-            winner=self.human.player_id
+            winner="Umano"
             print("The Human wins!")
         elif robot_score > human_score:
-            winner=self.robot.player_id
+            winner="Robot"
             print("The Robot wins!")
         else:
+            winner = "Pareggio"
             print("It's a draw!")
 
-        return winner
+        return winner, human_score, robot_score
 
 
     def _log_game_state(self, card: Card, azione: str, current_bid: int, highest_bidder: Player, player_che_agisce: Player):
@@ -227,8 +234,8 @@ class Auctions:
         log_row = {
             "Log_ID": self.log_entry_counter,
             "Asta_Num": self.turn_number,
-            "Carta_Asta": card.card_name,
-            "Categoria": card.category_name.value,
+            "Carta_Asta": card.card_name if card else "Nessuna" ,
+            "Categoria": card.category_name.value if card else "Nessuna",
             "Player_Azione": player_che_agisce.player_id if player_che_agisce else "Sistema",
             "Azione": azione,
             "Offerta_Corrente": current_bid,
@@ -256,6 +263,29 @@ class Auctions:
         if not self.log_data:
             print("Nessun dato da loggare.")
             return
+        
+        base_dir = os.path.dirname(__file__)
+        full_path = os.path.join(base_dir, "..", "util", "user_number")
+        full_path = os.path.abspath(full_path)
+
+        self.run_number = self.get_current_run_number(full_path)
+        # Formatta il numero con zeri (es. 1 -> "001", 12 -> "012")
+        run_number_str = str(self.run_number).zfill(3) 
+        # Questo sarà il nome della cartella (es. "Partita_001")
+        self.output_folder = f"plot/Partita_{run_number_str}"
+
+        try:
+            os.makedirs(self.output_folder, exist_ok=True)
+            print(f"Log salvati in: {self.output_folder}")
+        except OSError as e:
+            print(f"ERRORE: Impossibile creare la cartella {self.output_folder}: {e}")
+            # Se non può creare la cartella, salva nella cartella principale
+            self.output_folder = "."
+
+        full_excel_path = os.path.join(self.output_folder)
+                
+        # 4. INCREMENTA IL COUNTER PER LA PROSSIMA VOLTA
+        self.increment_run_number(full_path, self.run_number)
 
         try:
             df = pd.DataFrame(self.log_data)
@@ -276,7 +306,30 @@ class Auctions:
             
             df = df[colonne_ordinate] # Riordina
             
-            df.to_excel("game_log_dettagliato.xlsx", index=False, sheet_name="Log Aste Dettagliato")
+            df.to_excel(full_excel_path+"/game_log_dettagliato.xlsx", index=False, sheet_name="Log Aste Dettagliato")
             print("Log salvato con successo.")
         except Exception as e:
             print(f"Errore durante il salvataggio del log: {e}")
+
+
+    def get_current_run_number(file_path):
+        """Legge il numero di run attuale dal file counter."""
+        try:
+            with open(file_path, "r") as f:
+                content = f.read().strip() # .strip() rimuove spazi/a capo
+                if content:
+                    return int(content)
+                return 1 # Il file è vuoto, inizia da 1
+        except (FileNotFoundError, ValueError):
+            # File non trovato o contenuto non valido (es. "abc")
+            return 1 # Inizia da 1
+
+    def increment_run_number(file_path, current_number):
+        """Incrementa e salva il numero per la prossima run."""
+        next_number = current_number + 1
+        try:
+            with open(file_path, "w") as f:
+                f.write(str(next_number))
+        except IOError as e:
+            # Gestisce errori se il file è bloccato, ecc.
+            print(f"ATTENZIONE: Impossibile aggiornare il file counter {file_path}: {e}")
