@@ -73,11 +73,14 @@ class Auctions:
             active_player.has_passed = True
             turn_log = "Pass (Volontario)"
         else:  # The action is a bid (a number)
-            self.current_bid = action
-            if active_player.can_bid(action):
-                self.highest_bidder = active_player
-                print(f"{active_player.player_id} bids ${self.current_bid}")
-                turn_log = f"Puntata ${self.current_bid}"
+            if (action >= card.starting_bid) and (action > self.current_bid):
+                if active_player.can_bid(action):
+                    self.current_bid = action
+                    self.highest_bidder = active_player
+                    print(f"{active_player.player_id} bids ${self.current_bid}")
+                    turn_log = f"Puntata ${self.current_bid}"
+                else:
+                    return False
             else:
                 return False
 
