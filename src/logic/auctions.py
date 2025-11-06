@@ -12,11 +12,11 @@ class Auctions:
         # Setup players
         self.human = Player("Umano", 0 , budget_umano)
         self.robot =  Robot("Mirokai", 0 , budget_robot, "competitive")
-        
+
         # Setup deck
         self.deck = Deck.load_from_json("deck_1.json")
         self.deck.shuffle()
-        
+
         #Setup Game
         self.current_player = self.human
         self.current_bid = 0
@@ -54,13 +54,13 @@ class Auctions:
         # Se non ci sono più carte, il "bidding" non è possibile
         if not self.deck:
             return False
-            
+
         # Controlliamo la base d'asta della *prossima* carta (senza estrarla)
         next_card_starting_bid = card.starting_bid # o .base_asta
 
         human_can_bid = self.human.budget >= next_card_starting_bid
         robot_can_bid = self.robot.budget >= next_card_starting_bid
-        
+
         # Il gioco continua se l'umano PUO' O il robot PUO'
         # Ritorna True se almeno uno dei due può fare un'offerta
         return human_can_bid or robot_can_bid
@@ -73,6 +73,10 @@ class Auctions:
         if action == "pass":
             active_player.has_passed = True
             turn_log = "Pass (Volontario)"
+            self._log_game_state(card, turn_log, self.current_bid, self.highest_bidder, active_player)
+            self.current_player = self.robot if active_player == self.human else self.human
+            if self.current_bid == 0 and not self.current_player.has_passed:
+                return False
         else:  # The action is a bid (a number)
             if (action >= card.starting_bid) and (action > self.current_bid):
                 if active_player.can_bid(action):
@@ -89,9 +93,7 @@ class Auctions:
                 return False
 
         self._log_game_state(card, turn_log, self.current_bid, self.highest_bidder, active_player)
-        print("CURRENT PLAYER: ", self.current_player)
         self.current_player = self.robot if active_player == self.human else self.human
-        print("CURRENT PLAYER: ", self.current_player)
         return True
 
     def can_bid(self, active_player, card, current_bid):
@@ -141,7 +143,7 @@ class Auctions:
             self._log_game_state(None, "Cooperative WIN", 0, None, None)
             self._save_log_to_excel()
             return "Cooperative WIN"
-            
+
         else:
             winner = self.calculate_competitive_victory()
             self._log_game_state(None, winner[0], 0, None, None)
@@ -150,9 +152,9 @@ class Auctions:
 
     def calculate_cooperative_victory(self):
         print("\n--- Calculating Cooperative Victory (Rule 7) ---")
-        
+
         counts = {} # e.g.: {Category.ART: {"Human": 2, "Robot": 2}, ...}
-        
+
         # Initialize counts
         for cat in Category:
             counts[cat] = {self.human.player_id: 0, self.robot.player_id: 0}
@@ -161,7 +163,7 @@ class Auctions:
         for player in [self.human, self.robot]:
             for cat, card_list in player.cards.items():
                 counts[cat][player.player_id] = len(card_list)
-                
+
         # Check the condition
         victory = True
         for cat in Category:
@@ -180,7 +182,7 @@ class Auctions:
         # Inside the Game class
     def calculate_competitive_victory(self):
         print("\n--- Calculating Competitive Score (Rules 5 & 6) ---")
-        
+
         human_score = 0
         robot_score = 0
 
@@ -189,7 +191,7 @@ class Auctions:
         for card_list_human in self.human.cards.values():
             for card in card_list_human:
                 human_score += card.victory_points
-                
+
         for card_list_robot in self.robot.cards.values():
             for card in card_list_robot:
                 robot_score += card.victory_points
@@ -207,7 +209,7 @@ class Auctions:
             elif robot_has == 4:
                 print(f"Robot gets +20 VP (all {cat.value} cards)")
                 robot_score += 20
-            
+
             # Otherwise, check for +5 bonus (Rule 5a)
             elif human_has > robot_has:
                 print(f"Human gets +5 VP (majority of {cat.value})")
@@ -240,7 +242,7 @@ class Auctions:
         Questa funzione ora registra OGNI mossa.
         """
         self.log_entry_counter += 1
-        
+
         human_cards = self.human.count_by_category()
         robot_cards = self.robot.count_by_category()
 
@@ -268,7 +270,7 @@ class Auctions:
             "Punti_Robot": self.robot.calculate_victory_points(),
             "Carte_Mazzo": len(self.deck)
         }
-        
+
         self.log_data.append(log_row)
 
     def _save_log_to_excel(self):
@@ -279,14 +281,14 @@ class Auctions:
         if not self.log_data:
             print("Nessun dato da loggare.")
             return
-        
+
         base_dir = os.path.dirname(__file__)
         full_path = os.path.join(base_dir, "..", "util", "user_number.txt")
         full_path = os.path.abspath(full_path)
         print(full_path)
         self.run_number = self.get_current_run_number(full_path)
         # Formatta il numero con zeri (es. 1 -> "001", 12 -> "012")
-        run_number_str = str(self.run_number).zfill(3) 
+        run_number_str = str(self.run_number).zfill(3)
         # Questo sarà il nome della cartella (es. "Partita_001")
         self.output_folder = f"plot/Partita_{run_number_str}"
 
@@ -299,13 +301,13 @@ class Auctions:
             self.output_folder = "."
 
         full_excel_path = os.path.join(self.output_folder)
-                
+
         # 4. INCREMENTA IL COUNTER PER LA PROSSIMA VOLTA
         self.increment_run_number(full_path, self.run_number)
 
         try:
             df = pd.DataFrame(self.log_data)
-            
+
             # Imposta le colonne nell'ordine desiderato
             colonne_ordinate = [
                 "Log_ID", "Asta_Num", "Carta_Asta", "Categoria", "Player_Azione", "Azione",
@@ -319,9 +321,9 @@ class Auctions:
             for col in colonne_ordinate:
                 if col not in df.columns:
                     df[col] = None
-            
+
             df = df[colonne_ordinate] # Riordina
-            
+
             df.to_excel(full_excel_path+"/game_log_dettagliato.xlsx", index=False, sheet_name="Log Aste Dettagliato")
             print("Log salvato con successo.")
         except Exception as e:
