@@ -1,3 +1,6 @@
+from logic.card import Category as CATEGORY
+
+
 def generate_presentation_prompt(personalita, hobby, nome_giocatore):
     hobby_str = ", ".join(hobby)
 
@@ -120,15 +123,15 @@ Always answer in **Italian**, no matter what language the context or question us
 * Cards Remaining: {carte_rimanenti}
 * Your Coins: [{monete_bot}]
 * Your Collections:
-  * Red (Art): {collezioni_bot["rosso"]}
-  * Blue (Tech): {collezioni_bot["blu"]}
-  * Green (Relics): {collezioni_bot["verde"]}
+  * Red (Art): {collezioni_bot[CATEGORY.ART]}
+  * Blue (Tech): {collezioni_bot[CATEGORY.TECHNOLOGY]}
+  * Green (Relics): {collezioni_bot[CATEGORY.RELIC]}
 
 * Human Coins: [{monete_umano}]
 * Human Collections:
-  * Red (Art): {collezioni_umano["rosso"]}
-  * Blue (Tech): {collezioni_umano["blu"]}
-  * Green (Relics): {collezioni_umano["verde"]}
+  * Red (Art): {collezioni_umano[CATEGORY.ART]}
+  * Blue (Tech): {collezioni_umano[CATEGORY.TECHNOLOGY]}
+  * Green (Relics): {collezioni_umano[CATEGORY.RELIC]}
 
 ================================
 [ YOUR MOVE ]

@@ -67,3 +67,4 @@ class Player:
                 f"Arte={len(self.cards[Category.ART])}, "
                 f"Tecnologia={len(self.cards[Category.TECHNOLOGY])}, "
                 f"Reliquie={len(self.cards[Category.RELIC])})")
+    

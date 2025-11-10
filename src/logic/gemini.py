@@ -1,10 +1,11 @@
+import re
 from google import genai
-from prompt_gen import *
+from logic.prompt_gen import *
 import json
 
 class Gemini:
     def __init__(self, model, auction):
-        with open("./token.txt") as f:
+        with open("src/util/token.txt") as f:
             self.token = f.readline()
         self.client = genai.Client(api_key=self.token)
         self.model = model
@@ -26,8 +27,8 @@ class Gemini:
             tipo_oggetto=self.auction.deck.current_card.category_name,
             valore_pv=self.auction.deck.current_card.victory_points,
             descrizione=self.auction.deck.current_card.card_name,
-            offerta_corrente=self.auction.deck.current_bid,
-            offerente=self.auction.deck.current_player.player_id,
+            offerta_corrente=self.auction.current_bid,
+            offerente=self.auction.human.player_id,
             base_asta=self.auction.deck.current_card.starting_bid,
             carte_rimanenti=len(self.auction.deck),
             monete_bot=self.auction.robot.budget,
@@ -38,4 +39,6 @@ class Gemini:
             hobby_utente=hobbies
         )
         response = self.chat.send_message(prompt_turno)
-        return json.loads(response.text)
+        match = re.search(r"{.*}", response.text, re.DOTALL)
+        print(response.text)
+        return json.loads(match.group())

@@ -7,15 +7,21 @@ from .deck import Deck
 from .card import *
 
 class Auctions:
-    def __init__(self, budget_umano=1000, budget_robot=1000, modalita_cooperativa=False):
+    def __init__(self, budget_umano=1000, budget_robot=1000, modalita_cooperativa=True):
 
         # Setup players
         self.human = Player("Umano", 0 , budget_umano)
         self.robot =  Robot("Mirokai", 0 , budget_robot, "competitive")
 
+        self.modalita_cooperativa = modalita_cooperativa
+
         # Setup deck
-        self.deck = Deck.load_from_json("deck_1.json")
-        self.deck.shuffle()
+        if not modalita_cooperativa:
+            self.deck = Deck.load_from_json("deck_1.json")
+            self.deck.shuffle()
+        else:
+            self.deck = Deck.load_from_json("deck_2.json")
+            self.deck.shuffle()
 
         #Setup Game
         self.current_player = self.human

@@ -12,4 +12,4 @@ src/logic/__pycache__/deck.cpython-310.pyc
 src/logic/__pycache__/player.cpython-310.pyc
 src/logic/__pycache__/robot.cpython-310.pyc
 src/logic/__pycache__/
-./src/util/token.txt
+src/util/token.txt

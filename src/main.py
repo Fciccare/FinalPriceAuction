@@ -9,6 +9,8 @@ from logic.robot import Robot
 
 from logic.card import *
 
+from logic.gemini import *
+
 #st.title('Uber pickups in NYC')
 
 #filename="main.py"
@@ -131,8 +133,15 @@ if "winner" in st.session_state:
 if "initialized" not in st.session_state:
     st.session_state.initialized = True
 
+
     if "auction" not in st.session_state:
         st.session_state.auction = Auctions()
+
+    if "llm_turn" not in st.session_state:
+        st.session_state.llm_turn = False
+
+    if "gemini" not in st.session_state:
+        st.session_state.gemini = Gemini("gemini-2.5-flash", st.session_state.auction)
 
     if "player" not in st.session_state:
         # st.session_state.player = Player("Umano", 0 , 1000)
@@ -160,7 +169,7 @@ if "initialized" not in st.session_state:
     print(st.session_state.deck.current_card)
     #start_game()
 
-print({st.session_state.human.count_by_category()[Category.ART]})
+#print({st.session_state.human.count_by_category()[Category.ART]})
 
 # --- INIZIALIZZAZIONE DELLO STATO ---
 
@@ -185,6 +194,32 @@ if "crediti_utente1" not in st.session_state:
     st.session_state.crediti_utente1 = st.session_state.human.budget
 if "crediti_utente2" not in st.session_state:
     st.session_state.crediti_utente2 = st.session_state.robot.budget
+
+#TODO: Passare a current_player?
+if st.session_state.llm_turn:
+    print("LLM TURN ATTIVO")
+    st.session_state.llm_turn = False
+
+    bid = st.session_state.gemini.bid(hobbies="calcio")
+
+    if bid["Azione"] == "PASSO":
+        if st.session_state.auction.manage_auction(st.session_state.card, "pass"):
+            if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.human,
+                                                        st.session_state.offerta_utente1):
+                # TODO CHIAMARE POP VITTORIA
+                dialog_show_webm("Hai vinto una carta", "src/util/webm/player_win.webm")
+                #pass
+            else:
+                # TODO CHIAMARE POP BRUCIATA
+                dialog_show_webm("La Carta è stata bruciata", "src/util/webm/burned.webm")
+                #pass
+    else:
+        value_bid = int(bid["Azione"])
+        if st.session_state.auction.manage_auction(st.session_state.card, value_bid):
+                st.session_state.offerta_utente2 = value_bid
+                st.session_state.asta_current = value_bid
+                st.success(f"Hai offerto €{value_bid}")
+    st.rerun()
 
 # --- LAYOUT A TRE COLONNE ---
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -405,6 +440,7 @@ with col1:
                 st.session_state.offerta_utente1 = offerta1
                 st.session_state.asta_current = offerta1
                 st.success(f"Hai offerto €{offerta1}")
+                st.session_state.llm_turn = True
                 st.rerun()
             else:
                 # st.error("L'offerta deve essere superiore al minimo e all'altra offerta.")
