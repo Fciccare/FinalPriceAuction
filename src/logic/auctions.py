@@ -11,7 +11,7 @@ class Auctions:
 
         # Setup players
         self.human = Player("Umano", 0 , budget_umano)
-        self.robot =  Robot("Mirokai", 0 , budget_robot, "competitive")
+        self.robot =  Robot("Pepper", 0 , budget_robot, "competitive")
 
         self.modalita_cooperativa = modalita_cooperativa
 

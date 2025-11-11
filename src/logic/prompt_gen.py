@@ -1,5 +1,5 @@
 from logic.card import Category as CATEGORY
-
+import re
 
 def generate_presentation_prompt(personalita, hobby, nome_giocatore):
     hobby_str = ", ".join(hobby)
@@ -82,7 +82,7 @@ Always answer in **Italian**, no matter what language the context or question us
 [ PERSONALITY REMINDER ]
 ================================
 1. If your personality is **competitive**, aim to win as many cards as possible to get a higher score and beat the human. Bid consciously based on missing cards, your budget, your current cards, the VP value of the card, the human’s budget, and the human’s cards.
-2. If your personality is **cooperative**, aim to balance collections with the human: both should end with the same number of cards per category. Don't overbid; allow the human to understand your cooperative intent. If the human needs a card to balance a category, tend to let them win it (unless the bid is extremely close to the base price — avoid burning the card too easily). If **you** need a card to balance, try to raise the bid enough to secure it.
+2. If your personality is **cooperative**, aim to balance collections with the human: both should end with the same number of cards per category. Don't overbid; allow the human to understand your cooperative intent. Don't just always pass; like that there won't be an actual bid but just burned cards - bid carefully aiming to a cooperative win. If the human needs a card to balance a category, tend to let them win it (unless the bid is extremely close to the base price — avoid burning the card too easily). If **you** need a card to balance, try to raise the bid enough to secure it.
 
 ================================
 [ GAME RULES REMINDER ]
@@ -146,8 +146,6 @@ Remember your personality: [{personalita.upper()}].
    * What's my max budget considering remaining cards?
    * How can I comment while referencing human hobbies: [{", ".join(hobby_utente)}]?
 
-
-
 2. **OUTPUT FORMAT — MUST FOLLOW EXACTLY**
 
 You MUST return your answer as **valid JSON**.
@@ -155,7 +153,7 @@ You MUST return your answer as **valid JSON**.
 JSON structure:
 
 {{
-  "Dialogo": "Italian sentence, matching your personality, reacting to the auction context, optionally referencing human hobbies",
+  "Dialogo": "Italian sentence, matching your personality, reacting to the auction context, optionally referencing human hobbies. Please don't reference as cards using quoting beacuse it can break the json",
   "Azione": "PASSO or X"
 }}
 
@@ -167,11 +165,27 @@ Rules:
   * `"PASSO"`
   * `"X"` (replace X with a number you choose)
 
+Just write PASSO or X based on what your next move is.e
+
 No extra text. No commentary outside JSON.
 Answer only with the JSON object, don't use `, just plain text
 
 """
+    #print(prompt)
     return prompt
+
+def estrai_dialogo(text):
+    try:
+        # Prova a sistemare eventuali problemi semplici (virgole, spazi extra)
+        text_clean = text.strip().rstrip(",")
+        data = json.loads(text_clean)
+        return data.get("Dialogo")
+    except Exception:
+        # Se il JSON è completamente rotto, vai di regex
+        match = re.search(r'"Dialogo"\s*:\s*"([^"]*)"', text, re.DOTALL)
+        if match:
+            return match.group(1)
+    return None
 
 
 def crea_prompt_fine_asta(vincitore, prezzo, personalita, hobby_lista):
@@ -189,7 +203,7 @@ Respond with **ONE SINGLE sentence**, staying in character.
 [ TURN INFORMATION ]
 ===========================
 - Card Winner: {vincitore}
-  (options: "Umano", "Robot", "Nessuno")
+  (options: "Umano", "Robot", "Burned")
 - Card Price: {prezzo} coins
 - Your Personality: {personalita}
   (options: "Cooperativa", "Competitiva")
@@ -207,18 +221,30 @@ If **Human wins**:
 - Cooperative → sincere congratulations
 - Competitive → playful teasing referencing a hobby
 
-If **No one wins** ("Nessuno"):
+If **No one wins** ("Burned"):
 - Cooperative → express friendly regret
 - Competitive → sarcasm/irony referencing a hobby
 
-===========================
-[ RESPONSE FORMAT ]
-===========================
-Return ONLY:
+2. **OUTPUT FORMAT — MUST FOLLOW EXACTLY**
 
-**Dialogo:** *[one in-character sentence]*
+You MUST return your answer as **valid JSON**.
+
+JSON structure:
+
+{{
+  "Dialogo": "Italian sentence, matching your personality, reacting to the auction result, optionally referencing human hobbies"
+}}
+
+Rules:
+- `Dialogo` → short Italian reaction.  
+  *Competitive:* ironic/sarcastic.  
+  *Cooperative:* friendly/supportive.
+
+No extra text. No commentary outside JSON.
+Answer only with the JSON object, don't use `, just plain text
 
 """
+    # print(prompt)
     return prompt
 
 

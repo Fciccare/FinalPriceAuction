@@ -1,30 +1,28 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
 from PIL import Image
-
-from logic.deck import Deck
-from logic.player import Player
-from logic.robot import Robot
-
-from logic.card import *
+from streamlit import session_state
+from torchaudio.io import play_audio
 
 from logic.gemini import *
-
-#st.title('Uber pickups in NYC')
-
-#filename="main.py"
-#import os
-#import subprocess
-#subprocess.Popen(["streamlit", "run", filename, os.devnull])
 import streamlit as st
-import streamlit_shadcn_ui as ui
-
+from logic.card import *
 from logic.auctions import Auctions
+from logic.transcriber import *
 
 # --- CONFIGURAZIONE BASE ---
 st.set_page_config(page_title="Asta tra due utenti", layout="wide")
 
+#capture_audio()
+
+def run_async(coro):
+    try:
+        loop = asyncio.get_running_loop()
+        # Siamo già dentro un event loop → usiamo create_task
+        return loop.create_task(coro)
+    except RuntimeError:
+        # Nessun event loop attivo → creiamone uno temporaneo
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        return loop.run_until_complete(coro)
 
 st.html('''
 <style>
@@ -55,10 +53,6 @@ def final_round():
     st.session_state.auction.highest_bidder = None
     st.session_state.offerta_utente1=0
     st.session_state.offerta_utente2=0
-    
-        #print(winner)
-        #final_dialog(winner)
-        #st.write(f"# {winner}")
 
 
 import time
@@ -96,28 +90,40 @@ def final_dialog(text, webm=""):
     if not webm == "":
         st.video(webm, loop=True, autoplay=True)
 
+async def player_play():
+    value = await capture_audio()
 
+    if value is None:
+        print("TOCCA AL PLAYYERRRR")
+        return run_async(player_play())
+    elif value == "PASSO":
+        if st.session_state.auction.manage_auction(st.session_state.card, "pass"):
+            if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.robot,
+                                                        st.session_state.offerta_utente2):
+                dialogo_robot = st.session_state.gemini.turn_result(st.session_state.auction.robot.player_id,
+                                                                    hobbies=st.session_state.hobbies)
+                st.session_state.testo_robot = dialogo_robot["Dialogo"]
+                dialog_show_webm("Il Robot ha vinto una carta", "src/util/webm/robot_win.webm")
 
-# st.markdown("""
-#     <style>
-#     /* Sfondo principale della pagina */
-#     .stApp {
-#         background-color: #F2F2F7;  /* grigio neutro chiaro */
-#     }
+            else:
+                dialogo_robot = st.session_state.gemini.turn_result("Burned", hobbies=st.session_state.hobbies)
+                st.session_state.testo_robot = dialogo_robot["Dialogo"]
+                dialog_show_webm("La Carta è stata bruciata", "src/util/webm/burned.webm")
+    else:
+        if not st.session_state.auction.can_bid(st.session_state.human, st.session_state.card,
+                                                st.session_state.asta_current):
+            print("NON PUOI BIDDARE QUESTA CIFRA")
+        else:
+            offerta1 = value
+            if st.session_state.auction.manage_auction(st.session_state.card, offerta1):
+                st.session_state.offerta_utente1 = offerta1
+                st.session_state.asta_current = offerta1
+                st.success(f"Hai offerto €{offerta1}")
+                st.session_state.llm_turn = True
+                st.rerun()
+            else:
+                st.warning("L'offerta non è valida", icon="⚠️")
 
-#     /* Box e container interni */
-#     [data-testid="stVerticalBlock"] {
-#         background-color: transparent !important;
-#     }
-
-#     /* Testo sempre visibile su sfondo neutro */
-#     h1, h2, h3, h4, h5, h6, p, span, div {
-#         color: #1E1E1E !important;
-#     }
-#     </style>
-# """, unsafe_allow_html=True)
-
-#st.title("🃏 Asta per una Carta")
 
 if "winner" in st.session_state:
     winner = st.session_state.winner
@@ -133,31 +139,33 @@ if "winner" in st.session_state:
 if "initialized" not in st.session_state:
     st.session_state.initialized = True
 
+    if "player_start" not in st.session_state:
+        st.session_state.player_start = False
+
+    if "testo_robot" not in session_state:
+        st.session_state.testo_robot = "Ma che bel testolino marcodirondondello🤣🤣🤣"
 
     if "auction" not in st.session_state:
-        st.session_state.auction = Auctions()
+        st.session_state.auction = Auctions(modalita_cooperativa=False)
 
     if "llm_turn" not in st.session_state:
         st.session_state.llm_turn = False
 
     if "gemini" not in st.session_state:
-        st.session_state.gemini = Gemini("gemini-2.5-flash", st.session_state.auction)
+        st.session_state.gemini = Gemini("gemini-2.5-flash-lite", st.session_state.auction)
 
     if "player" not in st.session_state:
-        # st.session_state.player = Player("Umano", 0 , 1000)
         st.session_state.human = st.session_state.auction.human
 
     if "robot" not in st.session_state:
-        # st.session_state.robot = Robot("Robot", 0 , 1000, "competitive")
         st.session_state.robot = st.session_state.auction.robot
 
     if "deck" not in st.session_state:
-        # deck = Deck.load_from_json("deck_1.json")
-        # deck.shuffle()
-        # st.session_state.deck = deck
-        # st.session_state.deck.draw()
         st.session_state.deck = st.session_state.auction.deck
         st.session_state.deck.draw()
+
+    if "hobbies" not in st.session_state:
+        st.session_state.hobbies = ["Pokemon", "Judo", "MMA", "Brainrot"]
 
     if "card" not in st.session_state:
         st.session_state.card = st.session_state.deck.current_card
@@ -166,10 +174,9 @@ if "initialized" not in st.session_state:
             print(st.session_state.auction.calculate_final_score())
             #TODO ANIMAZIONI
 
-    print(st.session_state.deck.current_card)
-    #start_game()
 
-#print({st.session_state.human.count_by_category()[Category.ART]})
+    print(st.session_state.deck.current_card)
+
 
 # --- INIZIALIZZAZIONE DELLO STATO ---
 
@@ -200,17 +207,21 @@ if st.session_state.llm_turn:
     print("LLM TURN ATTIVO")
     st.session_state.llm_turn = False
 
-    bid = st.session_state.gemini.bid(hobbies="calcio")
-
+    bid = st.session_state.gemini.bid(hobbies=st.session_state.hobbies)
+    st.session_state.testo_robot = bid["Dialogo"]
     if bid["Azione"] == "PASSO":
         if st.session_state.auction.manage_auction(st.session_state.card, "pass"):
             if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.human,
                                                         st.session_state.offerta_utente1):
                 # TODO CHIAMARE POP VITTORIA
+                dialogo_robot = st.session_state.gemini.turn_result(st.session_state.auction.human.player_id, hobbies=st.session_state.hobbies)
+                st.session_state.testo_robot = dialogo_robot["Dialogo"]
                 dialog_show_webm("Hai vinto una carta", "src/util/webm/player_win.webm")
                 #pass
             else:
                 # TODO CHIAMARE POP BRUCIATA
+                dialogo_robot = st.session_state.gemini.turn_result("Burned", hobbies=st.session_state.hobbies)
+                st.session_state.testo_robot = dialogo_robot["Dialogo"]
                 dialog_show_webm("La Carta è stata bruciata", "src/util/webm/burned.webm")
                 #pass
     else:
@@ -220,6 +231,11 @@ if st.session_state.llm_turn:
                 st.session_state.asta_current = value_bid
                 st.success(f"Hai offerto €{value_bid}")
     st.rerun()
+elif st.session_state.player_start:
+    run_async(player_play())
+
+
+#print(st.session_state.player_start)
 
 # --- LAYOUT A TRE COLONNE ---
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -403,36 +419,19 @@ with col3:
     )
 
 
-# st.markdown(
-#         f"""
-#         <style>
-#         .player-box {{
-#             background-color: var(--background-color-secondary);
-#             color: var(--text-color);
-#             padding: 15px;
-#             border-radius: 10px;
-#             margin-bottom: 10px;
-#             box-shadow: 0 0 8px rgba(0,0,0,0.15);
-#         }}
-#         .stat-line {{
-#             margin: 3px 0;
-#         }}
-#         </style>
 
-#         <div class="player-box">
-#             <h4 style="margin: 0;">Puntata Corrente: {5}💰</h4>
-#         </div>""",
-#         unsafe_allow_html=True,
-#     )
 
 st.markdown("---")
+if st.button("Start a game"):
+    st.session_state.player_start = True
+    run_async(player_play())
 
 # --- SEZIONE UTENTE 1 ---
 col1, col2 = st.columns(2)
 with col1:
     st.subheader("👤 Utente 1")
     if not st.session_state.auction.can_bid(st.session_state.human, st.session_state.card, st.session_state.asta_current):
-        pass #can bid is false # TODO STUT O PULSANT BUCCHI
+        pass 
     else:
         offerta1 = st.number_input("Inserisci la tua offerta (€)", min_value=0, key="input1")
         if st.button("Offri come Utente 1", 1):
@@ -443,101 +442,27 @@ with col1:
                 st.session_state.llm_turn = True
                 st.rerun()
             else:
-                # st.error("L'offerta deve essere superiore al minimo e all'altra offerta.")
                 st.warning("L'offerta non è valida", icon="⚠️")
 
     if st.button("Passa Utente 1", 2):
         if st.session_state.auction.manage_auction(st.session_state.card, "pass"):
             if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.robot, st.session_state.offerta_utente2):
-                # TODO CHIAMARE POP VITTORIA
-              # TODO CHIAMARE POP VITTORIA
+                dialogo_robot=st.session_state.gemini.turn_result(st.session_state.auction.robot.player_id, hobbies=st.session_state.hobbies)
+                st.session_state.testo_robot = dialogo_robot["Dialogo"]
                 dialog_show_webm("Il Robot ha vinto una carta", "src/util/webm/robot_win.webm")
-                #pass
+                
             else:
-                # TODO CHIAMARE POP BRUCIATA
+                dialogo_robot=st.session_state.gemini.turn_result("Burned", hobbies=st.session_state.hobbies)
+                st.session_state.testo_robot = dialogo_robot["Dialogo"]
                 dialog_show_webm("La Carta è stata bruciata", "src/util/webm/burned.webm")
-                #pass
-
-        # st.session_state.deck.draw()
-        # st.session_state.card = st.session_state.deck.current_card
-        # st.session_state.carte_rimaste = len(st.session_state.deck)
-        # st.session_state.asta_current = 0
-        # st.session_state.robot.has_passed = False
-        # st.session_state.human.has_passed = False
-        # st.session_state.auction.current_player = st.session_state.human
-        # if not st.session_state.auction.is_bidding_possible(st.session_state.card):
-        #      print(st.session_state.auction.calculate_final_score())
-        #     # TODO ANIMAZIONI
-
-        # st.rerun()
-        #print(st.session_state.card)
+                
 
 
-# --- SEZIONE UTENTE 2 ---
 with col2:
     st.subheader("🤖Robot")
-    if not st.session_state.auction.can_bid(st.session_state.robot, st.session_state.card,
-                                            st.session_state.asta_current):
-        pass  # can bid is false # TODO STUT O PULSANT BUCCHI
-    else:
-        offerta2 = st.number_input("Inserisci la tua offerta (€)", min_value=0, key="input2")
-        if st.button("Offri come Robot", 3):
-            if st.session_state.auction.manage_auction(st.session_state.card, offerta2):
-                st.session_state.offerta_utente2 = offerta2
-                st.session_state.asta_current = offerta2
-                st.success(f"Hai offerto €{offerta2}")
-                st.rerun()
-            else:
-                # st.error("L'offerta deve essere superiore al minimo e all'altra offerta.")
-                st.warning("L'offerta non è valida", icon="⚠️")
-
-    if st.button("Passa Robot", 4):
-        if st.session_state.auction.manage_auction(st.session_state.card, "pass"):
-            if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.human,
-                                                        st.session_state.offerta_utente1):
-                # TODO CHIAMARE POP VITTORIA
-                dialog_show_webm("Hai vinto una carta", "src/util/webm/player_win.webm")
-                #pass
-            else:
-                # TODO CHIAMARE POP BRUCIATA
-                dialog_show_webm("La Carta è stata bruciata", "src/util/webm/burned.webm")
-                #pass
-
-        # st.session_state.deck.draw()
-        # st.session_state.card = st.session_state.deck.current_card
-        # st.session_state.carte_rimaste = len(st.session_state.deck)
-        # st.session_state.asta_current = 0
-        # st.session_state.robot.has_passed = False
-        # st.session_state.human.has_passed = False
-        # st.session_state.auction.current_player = st.session_state.human
-        # if not st.session_state.auction.is_bidding_possible(st.session_state.card):
-        #     print(st.session_state.auction.calculate_final_score())
-        # TODO ANIMAZIONI
-        #print("AAAAAAAAAAAAAAAAAAAAAAAAAa")
-        #st.rerun()
+    st.header(st.session_state.testo_robot)
 
 
-
-    #     if offerta2 >= st.session_state.deck.current_card.starting_bid  and offerta2 > st.session_state.asta_current and st.session_state.robot.can_bid(offerta2):
-    #         st.session_state.offerta_utente2 = offerta2
-    #         st.session_state.asta_current = offerta2
-    #         st.success(f"Hai offerto €{offerta2}")
-    #         st.rerun()  # 👈 forza Streamlit a ridisegnare tutto
-    #     else:
-    #         #st.error("L'offerta deve essere superiore al minimo e all'altra offerta.")
-    #         st.warning("L'offerta non è valida", icon="⚠️")
-    #
-    # if st.button("Passa Utente 2", 4):
-    #     if(st.session_state.human.win_card(st.session_state.deck.current_card, st.session_state.offerta_utente1)):
-    #         st.success("Utente 1 hai vinto la card", icon="🎉")
-    #         #if st.button("Mostra GIF"):
-    #         show_modal_animation_local("anime.gif", duration=2.5, gif_width=2060)
-    #     else:
-    #         st.warning("Carta bruciata", icon="🔥")
-    #     st.session_state.deck.draw()
-    #     st.session_state.carte_rimaste = len(st.session_state.deck)
-    #     st.session_state.asta_current=0
-    #     st.rerun()
 
 st.markdown("---")
 
