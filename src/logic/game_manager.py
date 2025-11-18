@@ -46,17 +46,17 @@ class GameManager:
         self.hobbies = user_hobbies if user_hobbies else self.hobbies
         
         # Pesca la prima carta
-        self.auction.deck.draw()
-        self.current_card = self.auction.deck.current_card
-        
-        if self.current_card:
-            # Logga l'inizio della prima asta
-            self.auction._log_game_state(self.current_card, "Inizio Asta", 0, None, None)
-            self.game_active = True
-            return self.get_game_state()
-        else:
-            self.game_active = False
-            return {"error": "Mazzo vuoto, impossibile iniziare la partita."}
+        if not (self.auction.deck.draw() is None):
+            self.current_card = self.auction.deck.current_card
+            
+            if self.current_card:
+                # Logga l'inizio della prima asta
+                self.auction._log_game_state(self.current_card, "Inizio Asta", 0, None, None)
+                self.game_active = True
+                return self.get_game_state()
+            else:
+                self.game_active = False
+                return {"error": "Mazzo vuoto, impossibile iniziare la partita."}
 
 
     def start_new_turn(self):
@@ -64,63 +64,34 @@ class GameManager:
         if not self.is_game_active():
             return {"error": "Nessuna partita attiva."}
         
-        self.auction.deck.draw()
-        self.current_card = self.auction.deck.current_card
+        if not (self.auction.deck.draw() is None):
+            self.current_card = self.auction.deck.current_card
+            
+            if not self.auction.is_bidding_possible(self.current_card):
+                return self._end_game("", "", "Fondi insufficienti per continuare.")
         
-        if not self.current_card:
-            return {"error": "Mazzo vuoto, impossibile iniziare un nuovo turno."}
-        
-        # Resetta lo stato per il nuovo turno
-        self.auction.human.has_passed = False
-        self.auction.robot.has_passed = False
-        self.auction.current_player = self.auction.human
-        self.auction.current_bid = 0
-        self.auction.highest_bidder = None
-        
-        # Logga l'inizio della nuova asta
-        self.auction._log_game_state(self.current_card, "Inizio Turno", 0, None, None)
+            if not self.current_card:
+                return {"error": "Mazzo vuoto, impossibile iniziare un nuovo turno."}
+            
+            # Resetta lo stato per il nuovo turno
+            self.auction.human.has_passed = False
+            self.auction.robot.has_passed = False
+            self.auction.current_player = self.auction.human
+            self.auction.current_bid = 0
+            self.auction.highest_bidder = None
+            
+            # Logga l'inizio della nuova asta
+            self.auction._log_game_state(self.current_card, "Inizio Turno", 0, None, None)
+        else:
+            return self._end_game("", "", "Carte terminate.")
 
     def is_game_active(self) -> bool:
         return self.game_active and self.auction is not None
 
-    def _process_auction_result(self, winner_name: str, ai_dialogue: str) -> Dict[str, Any]:
-        """
-        Funzione helper per gestire la fine di un'asta e l'inizio
-        della successiva, o la fine della partita.
-        """
-        auction_result_message = f"Asta conclusa. Vincitore: {winner_name}"
-
-        # 1. Controlla se il mazzo è finito
-        if len(self.auction.deck) == 0:
-            return self._end_game(ai_dialogue, auction_result_message)
-
-        # 2. Pesca la prossima carta
-        self.auction.deck.draw()
-        self.current_card = self.auction.deck.current_card
-        
-        # 3. Controlla se si può continuare a puntare
-        if not self.auction.is_bidding_possible(self.current_card):
-            return self._end_game(ai_dialogue, auction_result_message, "Fondi insufficienti per continuare.")
-
-        # 4. Resetta per il nuovo round
-        self.auction.human.has_passed = False
-        self.auction.robot.has_passed = False
-        self.auction.current_player = self.auction.human
-        self.auction.current_bid = 0
-        self.auction.highest_bidder = None
-        
-        # Logga l'inizio della nuova asta
-        self.auction._log_game_state(self.current_card, "Inizio Asta", 0, None, None)
-
-        return self.get_game_state({
-            "message": "Prossimo round iniziato.",
-            "last_auction_result": auction_result_message,
-            "ai_dialogue": ai_dialogue
-        })
-
     def _end_game(self, ai_dialogue: str, auction_result: str, end_message: str = "Partita Terminata.") -> Dict[str, Any]:
         """Funzione helper per terminare la partita e loggare i punteggi."""
         winner = self.auction.calculate_final_score()
+        #TODO call Gemini function for end Auction
         final_state = self.get_game_state({
             "message": end_message,
             "ai_dialogue": ai_dialogue,
@@ -129,13 +100,8 @@ class GameManager:
             "winner": winner
         })
         
-        # Resetta lo stato del server
-        self.game_active = False
-        self.auction = None
-        self.gemini = None
-        self.current_card = None
         
-        return final_state
+        return self.get_game_state()
 
     def player_action(self):
         value = capture_audio()
