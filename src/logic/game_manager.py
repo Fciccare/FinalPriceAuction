@@ -143,6 +143,7 @@ class GameManager:
             print("TOCCA AL PLAYYERRRR")
             return "Error" , {"error": f"Offerta non valida: Puoi ripetere per favore?"}
         elif value == "PASSO":
+            print("PASSOOOOOOOOOO")
             if self.auction.manage_auction(self.current_card, "pass"):
                 if self.auction.resolve_auction(self.current_card, self.auction.robot,self.robot_offer):
                     dialogo_robot = self.gemini.turn_result(self.auction.robot.player_id, hobbies=self.hobbies)
@@ -156,6 +157,9 @@ class GameManager:
                     self.last_auction_result = "Carta Bruciata."
                     self.start_new_turn()
                     return "", self.get_game_state()
+            else:
+                self.llm_turn = True
+                return "Robot", self.get_game_state()
         else:
             if not self.auction.can_bid(self.auction.human, self.current_card,self.current_offer):
                 return "Error", {"error": "Fondi insufficienti per questa offerta."}
@@ -194,6 +198,19 @@ class GameManager:
                     self.robot_offer = value_bid
                     self.current_offer = value_bid
                     self.llm_turn = False
+                    if self.auction.human.has_passed:
+                        if self.auction.resolve_auction(self.current_card, self.auction.robot, self.robot_offer):
+                            dialogo_robot = self.gemini.turn_result(self.auction.robot.player_id, hobbies=self.hobbies)
+                            self.ai_dialogue = dialogo_robot["Dialogo"]
+                            self.last_auction_result = f"Vincitore: {self.auction.robot.player_id}"
+                            self.start_new_turn()
+                            return "", self.get_game_state()
+                        else:
+                            dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
+                            self.ai_dialogue = dialogo_robot["Dialogo"]
+                            self.last_auction_result = "Carta Bruciata."
+                            self.start_new_turn()
+                            return "", self.get_game_state()
                     return "Player", self.get_game_state()
             else:
                 return "Error" , {"error": f"Offerta non valida: {value_bid}. Deve essere maggiore di {self.auction.current_bid}."}
@@ -210,7 +227,7 @@ class GameManager:
         self.llm_turn = False
         
         # --- 1. Azione dell'UMANO ---
-        state , message = self.player_action()
+        state, message = self.player_action()
         if(state == "Error"):
             return message
         elif (state == "Robot"):
@@ -219,6 +236,8 @@ class GameManager:
             if(state_robot == "Error"):
                 return message
             elif (state_robot == "Player"):
+                return message
+            else:
                 return message
         else:
             return message
