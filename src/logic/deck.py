@@ -1,5 +1,5 @@
 import random # Necessario per mescolare il mazzo
-from .card import Card , Category
+from card import Card , Category
 import os
 import json
 from typing import List

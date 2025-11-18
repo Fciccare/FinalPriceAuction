@@ -7,21 +7,26 @@ import numpy as np
 import whisper
 import tempfile
 import scipy.io.wavfile
+import torch 
 
 import concurrent.futures
 
 executor = concurrent.futures.ThreadPoolExecutor()
 
+device, model_name = ("gpu", "turbo") if torch.cuda.is_available() else ("cpu", "turbo")
 
-model = whisper.load_model("turbo").to("cuda")
+model = whisper.load_model(model_name).to(device)
 
 def extract_number(text):
     pattern = r'-?\d+(?:\.\d+)?'
 
     number = re.findall(pattern, text)
 
-    if number:
+    #print(f"Numeri trovati nel testo: {number}, {len(number)}")
+
+    if len(number) > 0:
         last_number = number[-1]
+
         return int(last_number)
     return None
 
@@ -51,6 +56,7 @@ def capture_audio_sync():
     else:
         return extract_number(result["text"])
 
-async def capture_audio():
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(executor, capture_audio_sync)
+def capture_audio():
+    #loop = asyncio.get_event_loop()
+    #return await loop.run_in_executor(executor, capture_audio_sync)
+    return capture_audio_sync()

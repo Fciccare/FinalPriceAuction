@@ -1,10 +1,10 @@
 import pandas as pd
 import os
 
-from .robot import Robot
-from .player import Player
-from .deck import Deck
-from .card import *
+from robot import Robot
+from player import Player
+from deck import Deck
+from card import *
 
 class Auctions:
     def __init__(self, budget_umano=1000, budget_robot=1000, modalita_cooperativa=True):

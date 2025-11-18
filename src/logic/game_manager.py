@@ -1,9 +1,9 @@
 import json
 import os
 
-from .auctions import Auctions
-from .gemini import Gemini
-from .card import Card, Category
+from auctions import Auctions
+from gemini import Gemini
+from card import Card, Category
 from typing import Dict, Any, Optional
 from transcriber import capture_audio
 
@@ -41,7 +41,7 @@ class GameManager:
         # NOTA: gemini.py usa un modello non standard. 
         # Assicurati che "gemini-2.5-flash-lite" sia corretto o sostituiscilo
         # con un modello valido come "gemini-1.5-flash".
-        self.gemini = Gemini("gemini-1.5-flash", self.auction) 
+        self.gemini = Gemini("gemini-2.5-flash", self.auction) 
         
         self.hobbies = user_hobbies if user_hobbies else self.hobbies
         
@@ -117,7 +117,6 @@ class GameManager:
 
     def player_action(self):
         value = capture_audio()
-
         if value is None:
             print("TOCCA AL PLAYYERRRR")
             return "Error" , {"error": f"Offerta non valida: Puoi ripetere per favore?"}
@@ -152,7 +151,7 @@ class GameManager:
         self.ai_dialogue = bid_json.get("Dialogo", "...")
         ai_action = bid_json.get("Azione", "PASSO")
 
-        if ai_action["Azione"] == "PASSO":
+        if ai_action == "PASSO":
             if self.auction.manage_auction(self.current_card, "pass"):
                 if self.auction.resolve_auction(self.current_card, self.auction.human,self.human_offer):
                     dialogo_robot = self.gemini.turn_result(self.auction.human.player_id, hobbies=self.hobbies)
@@ -162,9 +161,11 @@ class GameManager:
                 else:
                     dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
                     self.last_auction_result = "Carta Bruciata."
-                    return "", self.get_game_state()
+                    return "", sdialogo_robotelf.get_game_state()
         else:
+            print(f"Offerta del robot precast: {ai_action}")
             value_bid = int(ai_action)
+            print(f"Offerta del robot: {value_bid}")
             if self.auction.manage_auction(self.current_card, value_bid):
                     self.robot_action = value_bid
                     self.current_offer = value_bid
@@ -198,7 +199,7 @@ class GameManager:
             return message
         
     # Helper per convertire le chiavi Enum in stringhe
-    def serialize_counts(counts_dict):
+    def serialize_counts(self, counts_dict):
         return {k.value: v for k, v in counts_dict.items()}
 
 

@@ -1,4 +1,4 @@
-from .card import Card, Category
+from card import Card, Category
 from typing import List,Dict
 
 

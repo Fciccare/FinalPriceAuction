@@ -1,5 +1,5 @@
-from .card import *
-from .player import Player
+from card import *
+from player import Player
 
 class Robot(Player):
 

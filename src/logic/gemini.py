@@ -1,12 +1,17 @@
 import re
 from google import genai
-from logic.prompt_gen import *
+from prompt_gen import *
 import json
 import time
+import os
 
 class Gemini:
     def __init__(self, model, auction):
-        with open("src/util/token.txt") as f:
+
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        token_path = os.path.join(script_dir, "..", "util", "token.txt")
+
+        with open(token_path) as f:
             self.token = f.readline()
         self.client = genai.Client(api_key=self.token)
         self.model = model

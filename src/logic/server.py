@@ -1,14 +1,17 @@
 # server.py
 from flask import Flask, jsonify, request
-from logic.game_manager import GameManager
+from game_manager import GameManager
+from flask_cors import CORS, cross_origin
 import os
+import traceback
 
 # read ip from config file
 data_file = GameManager.get_from_json_file("config.json")
 ip_address = data_file['ip']   
-
+port = data_file['port']
 
 app = Flask(__name__)
+cors = CORS(app)
 
 # Inizializza il gestore di gioco
 # Essendo un Singleton, questo ci darà sempre la stessa istanza
@@ -20,16 +23,19 @@ def index():
     # Un semplice endpoint per verificare che il server sia attivo
     return "Server Aste Bot Attivo!"
 
-@app.route("/game/start", methods=["POST"])
+@app.route("/game/start", methods=["GET"])
 def start_game():
     """
     Inizia una nuova partita.
     JSON Input: {"cooperative": bool, "hobbies": [str, ...]}
     """
-    data = request.json
-    coop_mode = data.get("cooperative", False)
-    hobbies = data.get("hobbies", ["Videogiochi", "Cucina"])
+    #data = request.json
+    #coop_mode = data.get("cooperative", False)
+    #hobbies = data.get("hobbies", ["Videogiochi", "Cucina"])
     
+    coop_mode = True
+    hobbies = ["Videogiochi", "Cucina"]
+
     try:
         initial_state = game_manager.start_new_game(coop_mode, hobbies)
         if "error" in initial_state:
@@ -49,7 +55,7 @@ def get_game_state():
         
     return jsonify(game_manager.get_game_state())
 
-@app.route("/game/action", methods=["POST"])
+@app.route("/game/action", methods=["GET"])
 def player_action():
     """
     Gestisce l'azione di un giocatore (offerta o passo).
@@ -60,9 +66,9 @@ def player_action():
     if not game_manager.is_game_active():
         return jsonify({"error": "Nessuna partita attiva."}), 404
 
-    data = request.json
-    action = data.get("action")
-    amount = data.get("amount", 0)
+    #data = request.json
+    #action = data.get("action")
+    #amount = data.get("amount", 0)
 
     try:
         # Tutta la logica (azione umana + risposta IA) è incapsulata qui
@@ -75,11 +81,13 @@ def player_action():
         
     except Exception as e:
         # Gestisce errori imprevisti durante il turno
+        print(traceback.format_exc())
         return jsonify({"error": f"Errore critico nel turno: {str(e)}"}), 500
 
 
 if __name__ == '__main__':
     # Usa la porta definita nell'ambiente, o 5000 come default
-    port = int(os.environ.get('PORT', 500)) 
+    #port = int(os.environ.get('PORT', 500)) 
+    port = 5000
     # 'debug=True' ricarica il server ad ogni modifica
     app.run(host=ip_address, port=port, debug=True)

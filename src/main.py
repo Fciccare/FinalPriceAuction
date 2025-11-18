@@ -8,21 +8,26 @@ from logic.card import *
 from logic.auctions import Auctions
 from logic.transcriber import *
 
+import os 
+import nest_asyncio
+
+nest_asyncio.apply()
+
 # --- CONFIGURAZIONE BASE ---
 st.set_page_config(page_title="Asta tra due utenti", layout="wide")
 
 #capture_audio()
 
-def run_async(coro):
-    try:
-        loop = asyncio.get_running_loop()
-        # Siamo già dentro un event loop → usiamo create_task
-        return loop.create_task(coro)
-    except RuntimeError:
-        # Nessun event loop attivo → creiamone uno temporaneo
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        return loop.run_until_complete(coro)
+# def run_async(coro):
+#     try:
+#         loop = asyncio.get_running_loop()
+#         # Siamo già dentro un event loop → usiamo create_task
+#         return loop.create_task(coro)
+#     except RuntimeError:
+#         # Nessun event loop attivo → creiamone uno temporaneo
+#         loop = asyncio.new_event_loop()
+#         asyncio.set_event_loop(loop)
+#         return loop.run_until_complete(coro)
 
 st.html('''
 <style>
@@ -83,19 +88,23 @@ def dialog_show_webm(text, webm="", timer=2.5):
             final_round()
             st.rerun()
 
-
 @st.dialog("FinalPriceAuction", dismissible=False)
 def final_dialog(text, webm=""):
     st.write(f"# {text}")
     if not webm == "":
         st.video(webm, loop=True, autoplay=True)
 
-async def player_play():
-    value = await capture_audio()
+def player_play():
+    #result = asyncio.create_task(test_async())
+    #dialog_show_webm("Parla ora dopo il beep!", "src/util/webm/burned.webm" ,timer=8)
+    
+    with st.spinner("Wait for it...", show_time=True):        
+        value = capture_audio()
+    print(f"Sono state puntate {value} monete")
 
     if value is None:
-        print("TOCCA AL PLAYYERRRR")
-        return run_async(player_play())
+        print("Ripeti")
+        #player_play()
     elif value == "PASSO":
         if st.session_state.auction.manage_auction(st.session_state.card, "pass"):
             if st.session_state.auction.resolve_auction(st.session_state.card, st.session_state.robot,
@@ -231,8 +240,8 @@ if st.session_state.llm_turn:
                 st.session_state.asta_current = value_bid
                 st.success(f"Hai offerto €{value_bid}")
     st.rerun()
-elif st.session_state.player_start:
-    run_async(player_play())
+# elif st.session_state.player_start:
+#     run_async(player_play())
 
 
 #print(st.session_state.player_start)
@@ -279,7 +288,10 @@ with col2:
         unsafe_allow_html=True
     )
 
-    img = Image.open(f"src/util/{st.session_state.deck.current_card.img_url}")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    img = Image.open(os.path.join(script_dir, "util", st.session_state.deck.current_card.img_url.lstrip('/\\')))
+
+    #img = Image.open(f"src/util/{st.session_state.deck.current_card.img_url}")
 
     st.markdown("<div class='card-container'>", unsafe_allow_html=True)
     st.image(img, width=380, caption=st.session_state.deck.current_card.card_name)
@@ -421,10 +433,10 @@ with col3:
 
 
 
-st.markdown("---")
-if st.button("Start a game"):
-    st.session_state.player_start = True
-    run_async(player_play())
+# st.markdown("---")
+# if st.button("Start a game"):
+#     st.session_state.player_start = True
+#     #run_async(player_play())
 
 # --- SEZIONE UTENTE 1 ---
 col1, col2 = st.columns(2)
@@ -466,4 +478,35 @@ with col2:
 
 st.markdown("---")
 
+import streamlit as st
+
+st.markdown("""
+    <style>
+    .big-button {
+        display: block;
+        width: 100%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 20px 40px;
+        font-size: 24px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        text-align: center;
+        transition: 0.3s;
+    }
+    .big-button:hover {
+        background-color: #45a049;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Crea il bottone con HTML
+# if st.markdown('<button class="big-button">🎤Premi per parlare</button>', unsafe_allow_html=True):
+#     st.session_state.player_start = True
+#     player_play()
+
+
+if st.button("🎤Premi per parlare"):
+    player_play()
 

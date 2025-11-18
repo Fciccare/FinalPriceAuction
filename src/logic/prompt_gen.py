@@ -1,4 +1,4 @@
-from logic.card import Category as CATEGORY
+from card import Category as CATEGORY
 import re
 
 def generate_presentation_prompt(personalita, hobby, nome_giocatore):
