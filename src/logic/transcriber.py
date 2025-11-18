@@ -13,7 +13,7 @@ import concurrent.futures
 
 executor = concurrent.futures.ThreadPoolExecutor()
 
-device, model_name = ("gpu", "turbo") if torch.cuda.is_available() else ("cpu", "turbo")
+device, model_name = ("cuda", "turbo") if torch.cuda.is_available() else ("cpu", "turbo")
 
 model = whisper.load_model(model_name).to(device)
 

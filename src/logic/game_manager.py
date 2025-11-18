@@ -161,13 +161,13 @@ class GameManager:
                 else:
                     dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
                     self.last_auction_result = "Carta Bruciata."
-                    return "", sdialogo_robotelf.get_game_state()
+                    return "", self.get_game_state()
         else:
             print(f"Offerta del robot precast: {ai_action}")
             value_bid = int(ai_action)
             print(f"Offerta del robot: {value_bid}")
             if self.auction.manage_auction(self.current_card, value_bid):
-                    self.robot_action = value_bid
+                    self.robot_offer = value_bid
                     self.current_offer = value_bid
                     self.llm_turn = False
                     return "Player", self.get_game_state()
