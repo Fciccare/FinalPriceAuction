@@ -58,6 +58,28 @@ class GameManager:
             self.game_active = False
             return {"error": "Mazzo vuoto, impossibile iniziare la partita."}
 
+
+    def start_new_turn(self):
+        """Inizia un nuovo turno pescando una nuova carta."""
+        if not self.is_game_active():
+            return {"error": "Nessuna partita attiva."}
+        
+        self.auction.deck.draw()
+        self.current_card = self.auction.deck.current_card
+        
+        if not self.current_card:
+            return {"error": "Mazzo vuoto, impossibile iniziare un nuovo turno."}
+        
+        # Resetta lo stato per il nuovo turno
+        self.auction.human.has_passed = False
+        self.auction.robot.has_passed = False
+        self.auction.current_player = self.auction.human
+        self.auction.current_bid = 0
+        self.auction.highest_bidder = None
+        
+        # Logga l'inizio della nuova asta
+        self.auction._log_game_state(self.current_card, "Inizio Turno", 0, None, None)
+
     def is_game_active(self) -> bool:
         return self.game_active and self.auction is not None
 
@@ -126,11 +148,13 @@ class GameManager:
                     dialogo_robot = self.gemini.turn_result(self.auction.robot.player_id, hobbies=self.hobbies)
                     self.ai_dialogue = dialogo_robot["Dialogo"]
                     self.last_auction_result = f"Vincitore: {self.auction.robot.player_id}"
+                    self.start_new_turn()
                     return "", self.get_game_state()
                 else:
                     dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
                     self.ai_dialogue = dialogo_robot["Dialogo"]
                     self.last_auction_result = "Carta Bruciata."
+                    self.start_new_turn()
                     return "", self.get_game_state()
         else:
             if not self.auction.can_bid(self.auction.human, self.current_card,self.current_offer):
@@ -144,9 +168,7 @@ class GameManager:
                 else:
                     return "Error" , {"error": f"Offerta non valida: {value}. Deve essere maggiore di {self.auction.current_bid}."}
                 
-    def robot_action(self):
-        #------------------------------------------------------------
-    
+    def robot_action(self):    
         bid_json = self.gemini.bid(hobbies=self.hobbies)
         self.ai_dialogue = bid_json.get("Dialogo", "...")
         ai_action = bid_json.get("Azione", "PASSO")
@@ -157,10 +179,12 @@ class GameManager:
                     dialogo_robot = self.gemini.turn_result(self.auction.human.player_id, hobbies=self.hobbies)
                     #TODO aggiusta il dialogo
                     self.last_auction_result = f"Vincitore: {self.auction.human.player_id}"
+                    self.start_new_turn()
                     return "", self.get_game_state()
                 else:
                     dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
                     self.last_auction_result = "Carta Bruciata."
+                    self.start_new_turn()
                     return "", self.get_game_state()
         else:
             print(f"Offerta del robot precast: {ai_action}")
@@ -182,6 +206,7 @@ class GameManager:
         if not self.is_game_active() or self.auction.current_player != self.auction.human:
             return {"error": "Azione non valida o non è il tuo turno."}
 
+        self.last_auction_result = ""
         self.llm_turn = False
         
         # --- 1. Azione dell'UMANO ---
