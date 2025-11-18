@@ -46,17 +46,17 @@ class GameManager:
         self.hobbies = user_hobbies if user_hobbies else self.hobbies
         
         # Pesca la prima carta
-        if not (self.auction.deck.draw() is None):
-            self.current_card = self.auction.deck.current_card
-            
-            if self.current_card:
-                # Logga l'inizio della prima asta
-                self.auction._log_game_state(self.current_card, "Inizio Asta", 0, None, None)
-                self.game_active = True
-                return self.get_game_state()
-            else:
-                self.game_active = False
-                return {"error": "Mazzo vuoto, impossibile iniziare la partita."}
+        self.auction.deck.draw()
+        self.current_card = self.auction.deck.current_card
+        
+        if self.current_card:
+            # Logga l'inizio della prima asta
+            self.auction._log_game_state(self.current_card, "Inizio Asta", 0, None, None)
+            self.game_active = True
+            return self.get_game_state()
+        else:
+            self.game_active = False
+            return {"error": "Mazzo vuoto, impossibile iniziare la partita."}
 
 
     def start_new_turn(self):
