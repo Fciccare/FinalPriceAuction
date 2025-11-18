@@ -64,7 +64,7 @@ class GameManager:
         if not self.is_game_active():
             return {"error": "Nessuna partita attiva."}
         
-        if not (self.auction.deck.draw() is None):
+        if self.auction.deck.draw():
             self.current_card = self.auction.deck.current_card
             
             if not self.auction.is_bidding_possible(self.current_card):

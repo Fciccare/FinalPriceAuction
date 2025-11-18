@@ -55,8 +55,9 @@ class Deck:
         """
         if not self.cards:
             print("Il mazzo è vuoto! Impossibile pescare.")
-            return None
+            return False
         self.current_card = self.cards.pop()
+        return True
 
     def add_card(self, card: Card) -> None:
         """
