@@ -6,7 +6,7 @@
     "victory_points": 3,
     "starting_bid": 10,
     "heat_requirement": 35,
-    "img_url": "/images/deck1/bussola_d_oro.png"
+    "img_url": "deck/images/deck1/bussola_d_oro.png"
   },
   {
     "card_name": "Anfora Greca",
@@ -15,7 +15,7 @@
     "victory_points": 6,
     "starting_bid": 15,
     "heat_requirement": 61,
-    "img_url": "/images/deck1/anfora_greca.png"
+    "img_url": "deck/images/deck1/anfora_greca.png"
   },
   {
     "card_name": "Arazzo Reale",
@@ -24,7 +24,7 @@
     "victory_points": 9,
     "starting_bid": 25,
     "heat_requirement": 96,
-    "img_url": "/images/deck1/arazzo_reale.png"
+    "img_url": "deck/images/deck1/arazzo_reale.png"
   },
   {
     "card_name": "La Canzone della Seta",
@@ -33,7 +33,7 @@
     "victory_points": 12,
     "starting_bid": 35,
     "heat_requirement": 123,
-    "img_url": "/images/deck1/canzone_della_seta.png"
+    "img_url": "deck/images/deck1/canzone_della_seta.png"
   },
   {
     "card_name": "Manuale di Alchimia",
@@ -42,7 +42,7 @@
     "victory_points": 3,
     "starting_bid": 10,
     "heat_requirement": 62,
-    "img_url": "/images/deck1/manuale_alchimia.png"
+    "img_url": "deck/images/deck1/manuale_alchimia.png"
   },
   {
     "card_name": "Chip per AI",
@@ -51,7 +51,7 @@
     "victory_points": 6,
     "starting_bid": 15,
     "heat_requirement": 74,
-    "img_url": "/images/deck1/chip_ai.png"
+    "img_url": "deck/images/deck1/chip_ai.png"
   },
   {
     "card_name": "Progetto \"Ornitottero\"",
@@ -60,7 +60,7 @@
     "victory_points": 9,
     "starting_bid": 25,
     "heat_requirement": 102,
-    "img_url": "/images/deck1/progetto_ornitottero.png"
+    "img_url": "deck/images/deck1/progetto_ornitottero.png"
   },
   {
     "card_name": "Reattore Arc",
@@ -69,7 +69,7 @@
     "victory_points": 12,
     "starting_bid": 35,
     "heat_requirement": 118,
-    "img_url": "/images/deck1/reattore_arc.png"
+    "img_url": "deck/images/deck1/reattore_arc.png"
   },
   {
     "card_name": "Spada di Steve",
@@ -78,7 +78,7 @@
     "victory_points": 3,
     "starting_bid": 10,
     "heat_requirement": 48,
-    "img_url": "/images/deck1/spada_steve.png"
+    "img_url": "deck/images/deck1/spada_steve.png"
   },
   {
     "card_name": "Mantello di Giulio Cesare",
@@ -87,7 +87,7 @@
     "victory_points": 6,
     "starting_bid": 15,
     "heat_requirement": 73,
-    "img_url": "/images/deck1/mantello_cesare.png"
+    "img_url": "deck/images/deck1/mantello_cesare.png"
   },
   {
     "card_name": "Frammento di Obelisco",
@@ -96,7 +96,7 @@
     "victory_points": 9,
     "starting_bid": 25,
     "heat_requirement": 87,
-    "img_url": "/images/deck1/frammento_obelisco.png"
+    "img_url": "deck/images/deck1/frammento_obelisco.png"
   },
   {
     "card_name": "Corona Sommersa",
@@ -105,6 +105,6 @@
     "victory_points": 12,
     "starting_bid": 35,
     "heat_requirement": 121,
-    "img_url": "/images/deck1/corona_sommersa.png"
+    "img_url": "deck/images/deck1/corona_sommersa.png"
   }
 ]

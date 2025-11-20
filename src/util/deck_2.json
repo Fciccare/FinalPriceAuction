@@ -6,7 +6,7 @@
     "victory_points": 3,
     "starting_bid": 10,
     "heat_requirement": 46,
-    "img_url": "/images/deck2/gioconda_perduta.png"
+    "img_url": "deck/images/deck2/gioconda_perduta.png"
   },
   {
     "card_name": "Statua di Gargoyle",
@@ -15,7 +15,7 @@
     "victory_points": 6,
     "starting_bid": 15,
     "heat_requirement": 75,
-    "img_url": "/images/deck2/statua_gargoyle.png"
+    "img_url": "deck/images/deck2/statua_gargoyle.png"
   },
   {
     "card_name": "La statua di GioGio",
@@ -24,7 +24,7 @@
     "victory_points": 9,
     "starting_bid": 25,
     "heat_requirement": 97,
-    "img_url": "/images/deck2/statua_giogio.png"
+    "img_url": "deck/images/deck2/statua_giogio.png"
   },
   {
     "card_name": "Maschera Tribale",
@@ -33,7 +33,7 @@
     "victory_points": 12,
     "starting_bid": 35,
     "heat_requirement": 115,
-    "img_url": "/images/deck2/maschera_tribale.png"
+    "img_url": "deck/images/deck2/maschera_tribale.png"
   },
   {
     "card_name": "Visore VR",
@@ -42,7 +42,7 @@
     "victory_points": 3,
     "starting_bid": 10,
     "heat_requirement": 59,
-    "img_url": "/images/deck2/visore_vr.png"
+    "img_url": "deck/images/deck2/visore_vr.png"
   },
   {
     "card_name": "Prima Copia di Minecraft",
@@ -51,7 +51,7 @@
     "victory_points": 6,
     "starting_bid": 15,
     "heat_requirement": 75,
-    "img_url": "/images/deck2/prima_minecraft.png"
+    "img_url": "deck/images/deck2/prima_minecraft.png"
   },
   {
     "card_name": "AI \"Architetto\"",
@@ -60,7 +60,7 @@
     "victory_points": 9,
     "starting_bid": 25,
     "heat_requirement": 99,
-    "img_url": "/images/deck2/AI_architetto.png"
+    "img_url": "deck/images/deck2/AI_architetto.png"
   },
   {
     "card_name": "Server \"Matrix\" Primario",
@@ -69,7 +69,7 @@
     "victory_points": 12,
     "starting_bid": 35,
     "heat_requirement": 110,
-    "img_url": "/images/deck2/server_matrix.png"
+    "img_url": "deck/images/deck2/server_matrix.png"
   },
   {
     "card_name": "Artiglio di dinosauro",
@@ -78,7 +78,7 @@
     "victory_points": 3,
     "starting_bid": 10,
     "heat_requirement": 43,
-    "img_url": "/images/deck2/artiglio_dinosauro.png"
+    "img_url": "deck/images/deck2/artiglio_dinosauro.png"
   },
   {
     "card_name": "Console Anni '80",
@@ -87,7 +87,7 @@
     "victory_points": 6,
     "starting_bid": 15,
     "heat_requirement": 79,
-    "img_url": "/images/deck2/console_80.png"
+    "img_url": "deck/images/deck2/console_80.png"
   },
   {
     "card_name": "Macchina da Scrivere",
@@ -96,7 +96,7 @@
     "victory_points": 9,
     "starting_bid": 25,
     "heat_requirement": 91,
-    "img_url": "/images/deck2/macchina_scrivere.png"
+    "img_url": "deck/images/deck2/macchina_scrivere.png"
   },
   {
     "card_name": "Sfera per catturare creature",
@@ -105,6 +105,6 @@
     "victory_points": 12,
     "starting_bid": 35,
     "heat_requirement": 111,
-    "img_url": "/images/deck2/sfera_creature.png"
+    "img_url": "deck/images/deck2/sfera_creature.png"
   }
 ]
