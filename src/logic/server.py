@@ -32,7 +32,7 @@ def start_game():
     #data = request.json
     #coop_mode = data.get("cooperative", False)
     #hobbies = data.get("hobbies", ["Videogiochi", "Cucina"])
-    
+
     coop_mode = True
     hobbies = ["Videogiochi", "Cucina"]
 

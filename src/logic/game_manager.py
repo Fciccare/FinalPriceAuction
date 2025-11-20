@@ -33,6 +33,8 @@ class GameManager:
             self.llm_turn: bool = False
             self.human_offer= None
             self.robot_offer= None 
+            self.winner= None
+            self.game_over= False
 
     def start_new_game(self, cooperative: bool = False, user_hobbies: list[str] = None):
         """Inizia una nuova partita, sovrascrivendo quella vecchia."""
@@ -79,6 +81,7 @@ class GameManager:
             self.auction.current_player = self.auction.human
             self.auction.current_bid = 0
             self.auction.highest_bidder = None
+            self.current_offer = 0
             
             # Logga l'inizio della nuova asta
             self.auction._log_game_state(self.current_card, "Inizio Turno", 0, None, None)
@@ -90,17 +93,16 @@ class GameManager:
 
     def _end_game(self, ai_dialogue: str, auction_result: str, end_message: str = "Partita Terminata.") -> Dict[str, Any]:
         """Funzione helper per terminare la partita e loggare i punteggi."""
-        winner = self.auction.calculate_final_score()
+        self.winner = self.auction.calculate_final_score()
+        self.game_over=True
         #TODO call Gemini function for end Auction
-        final_state = self.get_game_state({
-            "message": end_message,
-            "ai_dialogue": ai_dialogue,
-            "last_auction_result": auction_result,
-            "game_over": True,
-            "winner": winner
-        })
-        
-        
+        # final_state = self.get_game_state({
+        #     "message": end_message,
+        #     "ai_dialogue": ai_dialogue,
+        #     "last_auction_result": auction_result,
+        #     "game_over": True,
+        #     "winner": winner
+        # })
         return self.get_game_state()
 
     def player_action(self):
@@ -127,8 +129,9 @@ class GameManager:
                 self.llm_turn = True
                 return "Robot", self.get_game_state()
         else:
+            print(f"Offerta del player: {self.current_offer}, {self.auction.human.budget}, {self.auction.current_bid}")
             if not self.auction.can_bid(self.auction.human, self.current_card,self.current_offer):
-                return "Error", {"error": "Fondi insufficienti per questa offerta."}
+                return "Robot", {"error": "Fondi insufficienti per questa offerta."}
             else:
                 if self.auction.manage_auction(self.current_card, value):
                     self.human_offer = value
@@ -220,8 +223,8 @@ class GameManager:
         
         state = {
             "game_active": True,
-            "game_over": False,
-            "winner": None,
+            "game_over": self.game_over,
+            "winner": self.winner,
             "current_bid": self.auction.current_bid,
             "highest_bidder": self.auction.highest_bidder.player_id if self.auction.highest_bidder else None,
             "current_player_turn": self.auction.current_player.player_id,

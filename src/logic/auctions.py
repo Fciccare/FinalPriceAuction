@@ -58,8 +58,8 @@ class Auctions:
         La partita termina (restituisce False) solo se NESSUNO può puntare.
         """
         # Se non ci sono più carte, il "bidding" non è possibile
-        if not self.deck:
-            return False
+        # if not self.deck:
+        #     return False
 
         # Controlliamo la base d'asta della *prossima* carta (senza estrarla)
         next_card_starting_bid = card.starting_bid # o .base_asta
