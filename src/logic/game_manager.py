@@ -44,6 +44,7 @@ class GameManager:
         # Assicurati che "gemini-2.5-flash-lite" sia corretto o sostituiscilo
         # con un modello valido come "gemini-1.5-flash".
         self.gemini = Gemini("gemini-2.5-flash", self.auction) 
+        #TODO pulisci variabili per una nuova partita
         
         self.hobbies = user_hobbies if user_hobbies else self.hobbies
         
@@ -150,12 +151,15 @@ class GameManager:
             if self.auction.manage_auction(self.current_card, "pass"):
                 if self.auction.resolve_auction(self.current_card, self.auction.human,self.human_offer):
                     dialogo_robot = self.gemini.turn_result(self.auction.human.player_id, hobbies=self.hobbies)
+                    self.auction.robot.active_behavior.talk_and_move(dialogo_robot["Dialogo"])
                     #TODO aggiusta il dialogo
                     self.last_auction_result = f"Vincitore: {self.auction.human.player_id}"
                     self.start_new_turn()
                     return "", self.get_game_state()
                 else:
                     dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
+                    self.auction.robot.active_behavior.talk_and_move(dialogo_robot["Dialogo"])
+
                     self.last_auction_result = "Carta Bruciata."
                     self.start_new_turn()
                     return "", self.get_game_state()
@@ -163,6 +167,7 @@ class GameManager:
             print(f"Offerta del robot precast: {ai_action}")
             value_bid = int(ai_action)
             print(f"Offerta del robot: {value_bid}")
+            #TODO controlla fondi del robot non deve sforare i fondi
             if self.auction.manage_auction(self.current_card, value_bid):
                     self.robot_offer = value_bid
                     self.current_offer = value_bid
