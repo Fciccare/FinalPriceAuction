@@ -6,6 +6,7 @@ from behaviors.competitive_behavior import CompetitiveBehavior
 
 import argparse
 import qi
+import threading
 
 class Robot(Player):
 
@@ -58,6 +59,19 @@ class Robot(Player):
 
         else:
             self.active_behavior = CompetitiveBehavior(session, args.ip, args, port)
+
+        if self.active_behavior.autonomus.getState() != "disabled":
+            self.active_behavior.autonomus.setState("disabled")
+        self.active_behavior.stand_up() 
+
+        tracking_thread = threading.Thread(
+            target=self.active_behavior.start_tracking, 
+            args=(False,),  # Argomenti da passare a _tracking_loop
+            daemon=True
+        )   
+    
+        # Avviamo il thread. Questo NON blocca.
+        tracking_thread.start()
 
 
 
