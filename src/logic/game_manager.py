@@ -117,12 +117,14 @@ class GameManager:
                 if self.auction.resolve_auction(self.current_card, self.auction.robot,self.robot_offer):
                     dialogo_robot = self.gemini.turn_result(self.auction.robot.player_id, hobbies=self.hobbies)
                     self.ai_dialogue = dialogo_robot["Dialogo"]
+                    self.auction.robot.active_behavior.talk_and_move(dialogo_robot)
                     self.last_auction_result = f"Vincitore: {self.auction.robot.player_id}"
                     self.start_new_turn()
                     return "", self.get_game_state()
                 else:
                     dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
                     self.ai_dialogue = dialogo_robot["Dialogo"]
+                    self.auction.robot.active_behavior.talk_and_move(dialogo_robot)
                     self.last_auction_result = "Carta Bruciata."
                     self.start_new_turn()
                     return "", self.get_game_state()
@@ -146,19 +148,22 @@ class GameManager:
         bid_json = self.gemini.bid(hobbies=self.hobbies)
         self.ai_dialogue = bid_json.get("Dialogo", "...")
         ai_action = bid_json.get("Azione", "PASSO")
-
+        self.auction.robot.active_behavior.talk_and_move(bid_json)
+        
         if ai_action == "PASSO":
             if self.auction.manage_auction(self.current_card, "pass"):
                 if self.auction.resolve_auction(self.current_card, self.auction.human,self.human_offer):
                     dialogo_robot = self.gemini.turn_result(self.auction.human.player_id, hobbies=self.hobbies)
-                    self.auction.robot.active_behavior.talk_and_move(dialogo_robot["Dialogo"])
+                    self.ai_dialogue = dialogo_robot["Dialogo"]
+                    self.auction.robot.active_behavior.talk_and_move(dialogo_robot)
                     #TODO aggiusta il dialogo
                     self.last_auction_result = f"Vincitore: {self.auction.human.player_id}"
                     self.start_new_turn()
                     return "", self.get_game_state()
                 else:
                     dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
-                    self.auction.robot.active_behavior.talk_and_move(dialogo_robot["Dialogo"])
+                    self.ai_dialogue = dialogo_robot["Dialogo"]
+                    self.auction.robot.active_behavior.talk_and_move(dialogo_robot)
 
                     self.last_auction_result = "Carta Bruciata."
                     self.start_new_turn()
@@ -176,12 +181,16 @@ class GameManager:
                         if self.auction.resolve_auction(self.current_card, self.auction.robot, self.robot_offer):
                             dialogo_robot = self.gemini.turn_result(self.auction.robot.player_id, hobbies=self.hobbies)
                             self.ai_dialogue = dialogo_robot["Dialogo"]
+                            self.auction.robot.active_behavior.talk_and_move(dialogo_robot)
+
                             self.last_auction_result = f"Vincitore: {self.auction.robot.player_id}"
                             self.start_new_turn()
                             return "", self.get_game_state()
                         else:
                             dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
                             self.ai_dialogue = dialogo_robot["Dialogo"]
+                            self.auction.robot.active_behavior.talk_and_move(dialogo_robot)
+
                             self.last_auction_result = "Carta Bruciata."
                             self.start_new_turn()
                             return "", self.get_game_state()

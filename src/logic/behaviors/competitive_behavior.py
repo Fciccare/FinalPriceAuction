@@ -24,22 +24,25 @@ class CompetitiveBehavior(Pepper):
             }
 
 
-    def talk_and_move(self, phrases):
-        """
-        Esegue una posa competitiva casuale
-        e pronuncia una frase adatta.
-        """
+    def talk_and_move(self, dialogo_robot):
+
+        azione = dialogo_robot.get("Azione")
+        frase = dialogo_robot.get("Dialogo", "")
+
         self.execute_random_competitive_pose()
 
-        
-        self.tts.say(phrases)
-        
-        # Pausa breve dopo aver parlato
-        time.sleep(1)
-        
-        # Torna alla posa neutra
-        self.reset_pose()
+        if azione is not None:
+            if azione == "PASSO":
+                frase = frase + "Passo il turno."
+            else:
+                frase = frase + "Punto" + azione + "Monete."
 
+        if frase:
+            print(f"Robot dice: {frase}")
+            self.tts.say(frase)
+        
+        time.sleep(1)
+        self.reset_pose()
 
     def execute_random_competitive_pose(self):
         """
