@@ -7,17 +7,17 @@ import numpy as np
 import whisper
 import tempfile
 import scipy.io.wavfile
-import torch 
+import torch
 
-import concurrent.futures
+model = None
 
-executor = concurrent.futures.ThreadPoolExecutor()
+def load_model():
+    torch.cuda.empty_cache()
 
-torch.cuda.empty_cache()
-
-device, model_name = ("cuda", "turbo") if torch.cuda.is_available() else ("cpu", "turbo")
-
-model = whisper.load_model(model_name).to(device)
+    device, model_name = ("cuda", "turbo") if torch.cuda.is_available() else ("cpu", "small")
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
+    global model
+    model = whisper.load_model(model_name).to(device)
 
 def extract_number(text):
     pattern = r'-?\d+(?:\.\d+)?'

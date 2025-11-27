@@ -222,7 +222,7 @@ class Pepper:
             # Loop di polling (ora in background)
             while dist and dist[0] > 0.4:
                 dist = self.tracker.getTargetPosition()
-                print("[Thread] Distanza attuale:", dist)
+                #print("[Thread] Distanza attuale:", dist)
                 time.sleep(0.1) # Controlla 10 volte al secondo, è sufficiente
 
             print("[Thread] Target raggiunto o perso. Fermo il movimento.")

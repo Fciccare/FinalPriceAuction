@@ -1,7 +1,10 @@
 import random
 import time
 
-from pepper import Pepper
+from src.logic.behaviors.pepper import Pepper
+
+import argparse
+import qi
 
 class CompetitiveBehavior(Pepper):
 
@@ -26,21 +29,21 @@ class CompetitiveBehavior(Pepper):
 
     def talk_and_move(self, dialogo_robot):
 
-        azione = dialogo_robot.get("Azione")
+        # azione = dialogo_robot.get("Azione")
         frase = dialogo_robot.get("Dialogo", "")
-
+        print("prima della move")
         self.execute_random_competitive_pose()
-
-        if azione is not None:
-            if azione == "PASSO":
-                frase = frase + "Passo il turno."
-            else:
-                frase = frase + "Punto" + azione + "Monete."
+        print("frase: ", frase)
+        # if azione is not None:
+        #     if azione == "PASSO":
+        #         frase = frase + "Passo il turno."
+        #     else:
+        #         frase = frase + "Punto" + azione + "Monete."
 
         if frase:
             print(f"Robot dice: {frase}")
             self.tts.say(frase)
-        
+
         time.sleep(1)
         self.reset_pose()
 

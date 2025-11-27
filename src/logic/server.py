@@ -1,14 +1,98 @@
 # server.py
+from ipaddress import ip_address
+
 from flask import Flask, jsonify, request
 from game_manager import GameManager
 from flask_cors import CORS, cross_origin
 import os
 import traceback
 
+import argparse
+import qi
+import threading
+from src.logic.behaviors.collaborative_behavior import CollaborativeBehavior
+from src.logic.behaviors.competitive_behavior import CompetitiveBehavior
+
+
+session = None
+
+if session is None:
+    active_behavior = None
+    data_file = GameManager.get_from_json_file("pepper_config.json")
+    ROBOT_IP = data_file['ip']
+    PORT = data_file['port']
+    print("ip Robot: ", ROBOT_IP)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--robot", type=str, default="pepper", help="Robot you want to use: pepper or nao.")
+    parser.add_argument("--nao_version", type=str, default="v6", help="Version of nao you wish to use.")
+    parser.add_argument("--ip", type=str, default=ROBOT_IP, help="Robot IP address.")
+    parser.add_argument("--sock", type=str, default="server", help="Robot socket side: server or client.")
+    args = parser.parse_args()
+    coop_mode = False
+
+    try:
+        port = str(PORT)
+        PATH = '/Users/lucarag/work/unina'
+        PATH = PATH + '/'
+        trial = 10
+
+        session = None
+        session = qi.Session()
+        try:
+            session.connect("tcp://" + args.ip + ":" + port)
+        except RuntimeError:
+            print("Can't connect to Naoqi at ip \"" + args.ip + "\" on port " + str(port) + ".\n"
+                                                                                            "Please check your script arguments. Run with -h option for help.")
+            exit(1)
+
+
+        if coop_mode:
+            active_behavior = CollaborativeBehavior(session, args.ip, args, port)
+        else:
+            active_behavior = CompetitiveBehavior(session, args.ip, args, port)
+
+        if active_behavior.autonomus.getState != "disabled":
+            active_behavior.autonomus.setState("disabled")
+        active_behavior.stand_up()
+        tracking_thread = threading.Thread(
+            target=active_behavior.start_tracking,
+            args=(False,),  # Argomenti da passare a _tracking_loop
+            daemon=True
+        )
+
+        # Avviamo il thread. Questo NON blocca.
+        tracking_thread.start()
+
+    except RuntimeError:
+        print("Can't connect to Naoqi at ip \"" + args.ip + "\" on port " + str(port) + ".\n" + "Please check your script arguments. Run with -h option for help.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # read ip from config file
 data_file = GameManager.get_from_json_file("config.json")
-ip_address = data_file['ip']   
-port = data_file['port']
+ip_address = data_file['ip']
+port = data_file['port']#
+
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -16,6 +100,7 @@ cors = CORS(app)
 # Inizializza il gestore di gioco
 # Essendo un Singleton, questo ci darà sempre la stessa istanza
 game_manager = GameManager()
+# game_manager = None
 
 @app.route("/", methods=["GET", "POST"])
 @app.route('/index', methods=["GET", "POST"])
@@ -33,11 +118,9 @@ def start_game():
     #coop_mode = data.get("cooperative", False)
     #hobbies = data.get("hobbies", ["Videogiochi", "Cucina"])
 
-    coop_mode = True
-    hobbies = ["Videogiochi", "Cucina"]
-
+    hobbies = ["Videogiochi", "Leggere Fantasy", "Guardare Anime"]
     try:
-        initial_state = game_manager.start_new_game(coop_mode, hobbies)
+        initial_state = game_manager.start_new_game(coop_mode, hobbies, active_behavior)
         if "error" in initial_state:
             return jsonify(initial_state), 400
         

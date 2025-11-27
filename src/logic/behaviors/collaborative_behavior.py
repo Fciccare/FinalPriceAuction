@@ -1,6 +1,7 @@
 import time
 import random
-from pepper import Pepper
+
+from src.logic.behaviors.pepper import Pepper
 
 GREETING = ['animations/Stand/Gestures/Hey_1', 'animations/Stand/Gestures/Hey_3'] #'animations/Stand/Gestures/BowShort_1',
 POSITIVE = ['animations/Stand/Emotions/Positive/Happy_4', 'animations/Stand/Gestures/Enthusiastic_4', 'animations/Stand/Gestures/Yes_1', 'animations/Stand/Gestures/Yes_3']
