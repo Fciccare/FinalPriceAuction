@@ -347,6 +347,7 @@ class Auctions:
             # File non trovato o contenuto non valido (es. "abc")
             return 1 # Inizia da 1
 
+
     def increment_run_number(self, file_path, current_number):
         """Incrementa e salva il numero per la prossima run."""
         next_number = current_number + 1

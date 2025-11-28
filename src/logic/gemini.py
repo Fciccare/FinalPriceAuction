@@ -19,14 +19,15 @@ class Gemini:
         self.auction = auction
         self.personalita = "cooperativo e amichevole" if self.auction.modalita_cooperativa else "competitivo e sarcastico e cattivo"
 
-    def presentation(self):
-        # TODO
-        response = self.chat.send_message(dialogo_conoscitivo())
-        print(response.text)
-        while True:
-            asd = input("RISPOSTA: ")
-            response = self.chat.send_message(asd)
-            print(response.text)
+
+    def presentation(self, message = None):
+        if message is None:
+            response = self.chat.send_message(dialogo_conoscitivo())
+        else:
+            response = self.chat.send_message(message)
+
+        return response
+
 
     def bid(self, hobbies, retries=10):
         prompt_turno = generate_prompt_turno(
