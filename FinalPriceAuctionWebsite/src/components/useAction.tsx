@@ -82,6 +82,8 @@ function mapBackendToFrontend(data: any): AuctionState {
   };
 }
 
+const URL = "http://127.0.0.1:5000";
+
 /* ---------------------------------------------------
    🎮  Hook principale: useAuction()
 --------------------------------------------------- */
@@ -92,7 +94,7 @@ export default function useAuction() {
   /* 🔄 Fetch iniziale */
   const fetchState = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:5000/game/start");
+      const res = await fetch(`${URL}/game/start`);
       const data = await res.json();
       console.log(data);
       setState(mapBackendToFrontend(data));
@@ -107,7 +109,7 @@ export default function useAuction() {
 
   const actionGame = async (): Promise<String> => {
     try {
-      const res = await fetch("http://127.0.0.1:5000/game/action");
+      const res = await fetch(`${URL}/game/action`);
       //console.log(res);
       if (!res.ok){
         const data = await res.json();
@@ -128,7 +130,7 @@ export default function useAuction() {
 
   const getCurrentState = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:5000/game/state");
+      const res = await fetch(`${URL}/game/state`);
       const data = await res.json();
       setState(mapBackendToFrontend(data));
     } catch (err) {
@@ -139,62 +141,7 @@ export default function useAuction() {
     }
   }; 
 
-//   /* 💰 Puntata */
-//   const placeBid = async (player: "human" | "robot", amount: number) => {
-//     try {
-//       const res = await fetch("http://localhost:5000/bid", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({ player, amount })
-//       });
-
-//       const data = await res.json();
-//       setState(mapBackendToFrontend(data));
-//     } catch (err) {
-//       console.error("Errore durante la puntata:", err);
-//     }
-//   };
-
-//   /* ✋ Passa il turno */
-//   const passTurn = async (player: "human" | "robot") => {
-//     try {
-//       const res = await fetch("http://localhost:5000/pass", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({ player })
-//       });
-
-//       const data = await res.json();
-//       setState(mapBackendToFrontend(data));
-//     } catch (err) {
-//       console.error("Errore passaggio turno:", err);
-//     }
-//   };
-
-//   /* 🔄 Forza il server ad andare alla carta successiva */
-//   const nextCard = async () => {
-//     try {
-//       const res = await fetch("http://localhost:5000/next-card", {
-//         method: "POST"
-//       });
-//       const data = await res.json();
-//       setState(mapBackendToFrontend(data));
-//     } catch (err) {
-//       console.error("Errore durante next-card:", err);
-//     }
-//   };
-
-//   /* 📌 Aggiorna automaticamente all’avvio */
-//   useEffect(() => {
-//     fetchState();
-//   }, []);
-
   return {
     state, fetchState, actionGame, getCurrentState
-    // ,loading,
-    // fetchState,
-    // placeBid,
-    // passTurn,
-    // nextCard
   };
 }
