@@ -53,12 +53,15 @@ def capture_audio_sync():
     elapsed = time.time() - start_time
 
     print(result["text"], f"(Tempo: {elapsed:.2f}s)")
-    if "passo" in result["text"].lower():
-        return "PASSO"
-    else:
-        return extract_number(result["text"])
+    return result["text"]
+
 
 def capture_audio():
     #loop = asyncio.get_event_loop()
     #return await loop.run_in_executor(executor, capture_audio_sync)
-    return capture_audio_sync()
+    text = capture_audio_sync()
+
+    if "passo" in text.lower():
+        return "PASSO"
+    else:
+        return extract_number(text)

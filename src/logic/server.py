@@ -1,4 +1,3 @@
-# server.py
 from ipaddress import ip_address
 
 from flask import Flask, jsonify, request
@@ -12,7 +11,6 @@ import qi
 import threading
 from src.logic.behaviors.collaborative_behavior import CollaborativeBehavior
 from src.logic.behaviors.competitive_behavior import CompetitiveBehavior
-
 
 session = None
 
@@ -68,25 +66,7 @@ if session is None:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#######################################################################################################################
 
 # read ip from config file
 data_file = GameManager.get_from_json_file("config.json")
@@ -118,7 +98,7 @@ def start_game():
     #coop_mode = data.get("cooperative", False)
     #hobbies = data.get("hobbies", ["Videogiochi", "Cucina"])
 
-    hobbies = ["Videogiochi", "Leggere Fantasy", "Guardare Anime"]
+    hobbies = game_manager.get_hobbies(active_behavior)
     try:
         initial_state = game_manager.start_new_game(coop_mode, hobbies, active_behavior)
         if "error" in initial_state:

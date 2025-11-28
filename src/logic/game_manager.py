@@ -22,9 +22,10 @@ class GameManager:
     def __init__(self):
         # Inizializza solo se non è già stato fatto
         if not hasattr(self, 'initialized'):
+            self.human_name = None
             self.auction: Optional[Auctions] = None
             self.gemini: Optional[Gemini] = None
-            self.hobbies: list[str] = ["Videogiochi", "Cucina"] # Default
+            self.hobbies: list[str] = None # ["Videogiochi", "Cucina"] # Default
             self.current_card: Optional[Card] = None
             self.game_active: bool = False
             self.initialized: bool = True
@@ -43,9 +44,8 @@ class GameManager:
         """Inizia una nuova partita, sovrascrivendo quella vecchia."""
         self.auction = Auctions(modalita_cooperativa=cooperative)
         self.active_behavior = active_behavior
-        # NOTA: gemini.py usa un modello non standard. 
-        # Assicurati che "gemini-2.5-flash-lite" sia corretto o sostituiscilo
-        # con un modello valido come "gemini-1.5-flash".
+
+
         self.gemini = Gemini("gemini-2.5-flash", self.auction) 
         #TODO pulisci variabili per una nuova partita
         
@@ -282,3 +282,20 @@ class GameManager:
             data_file = json.load(configfile)
 
         return data_file
+
+
+    def get_hobbies(self, behavior):
+
+        pepper_dialog = self.gemini.presentation()
+        if pepper_dialog.get("dialogo") is not None:
+            behavior.talk(pepper_dialog["dialogo"])
+        else:
+            self.human_name = pepper_dialog.get("name")
+            self.hobbies = pepper_dialog.get("hobbies")
+            return
+        #threading.Thread(target=self.behavior.talk, args=(pepper_dialog["dialogo"],)).start()
+        text = capture_audio()
+        pepper_dialog = self.gemini.presentation(text)
+
+
+

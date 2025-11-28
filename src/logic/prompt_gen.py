@@ -205,9 +205,9 @@ def dialogo_conoscitivo():
         IMPORTANT: even though this instruction is in English, the entire conversation with the user must be conducted in Italian.
         
         All responses during the conversation must be returned in JSON format with the following structure:
-        {
+        {{
           "dialogo": "<YOUR_MESSAGE_IN_ITALIAN>"
-        }
+        }}
         
         Conversation flow:
         - Greet the user warmly (in Italian) using the JSON structure
@@ -219,7 +219,7 @@ def dialogo_conoscitivo():
         
         Keep the tone natural and simple. Do not ask extra questions.
         
-        AFTER the conversation is fully completed, output ONLY a final JSON object (not wrapped in the 'dialog' key) with this structure:
+        AFTER the conversation is fully completed so when the user agrees to start the game, output ONLY a final JSON object (not wrapped in the 'dialog' key) with this structure:
         
         {
           "name": "<USER_NAME>",
