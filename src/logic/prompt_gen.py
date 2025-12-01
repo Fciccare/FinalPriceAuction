@@ -102,7 +102,7 @@ def generate_prompt_turno(
         JSON structure:
         
         {{
-          "Dialogo": "Italian sentence, matching your personality, reacting to the auction context, optionally referencing human hobbies. Please don't reference as cards using quoting beacuse it can break the json",
+          "Dialogo": "Italian sentence, matching your personality, reacting to the auction context, optionally referencing human hobbies. Please don't reference as cards using quoting beacuse it can break the json, at the end of the sentence add your action so the user can understand what you will do next.",
           "Azione": "PASSO or X"
         }}
         
@@ -226,6 +226,25 @@ def dialogo_conoscitivo():
           "hobbies": "<USER_HOBBIES>"
         }
         """
+
+
+def extract_name_hobbies(nome_str, descrizione_str):
+    prompt = f"""
+        Ti fornirò due stringhe.
+        La prima contiene il nome di una persona: "{nome_str}"
+        La seconda contiene una descrizione da cui devi estrarre i suoi hobby: "{descrizione_str}"
+
+        Restituisci esclusivamente un JSON con questa struttura:
+
+        {{
+          "nome": "...",
+          "hobby": ["...", "..."]
+        }}
+
+        Gli hobby devono essere una lista di attività concrete estratte dal testo.
+        Non aggiungere commenti o testo fuori dal JSON.
+        """
+    return prompt.strip()
 
 
 

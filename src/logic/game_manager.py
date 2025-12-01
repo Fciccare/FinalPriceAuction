@@ -1,12 +1,13 @@
 import json
 import os
+from random import random
 import threading
 
 from auctions import Auctions
 from gemini import Gemini
 from card import Card, Category
 from typing import Dict, Any, Optional
-from transcriber import capture_audio, load_model
+from transcriber import *
 
 class GameManager:
     """
@@ -38,6 +39,7 @@ class GameManager:
             self.winner= None
             self.game_over= False
             self.active_behavior = None
+            self.human_dialogue = None
 
     def start_new_game(self, cooperative: bool = False, user_hobbies: list[str] = None, active_behavior = None):
         load_model()
@@ -49,7 +51,7 @@ class GameManager:
         self.gemini = Gemini("gemini-2.5-flash", self.auction) 
         #TODO pulisci variabili per una nuova partita
         
-        self.hobbies = user_hobbies if user_hobbies else self.hobbies
+        #self.hobbies = user_hobbies if user_hobbies else self.hobbies
         
         # Pesca la prima carta
         self.auction.deck.draw()
@@ -99,6 +101,11 @@ class GameManager:
         """Funzione helper per terminare la partita e loggare i punteggi."""
         self.winner = self.auction.calculate_final_score()
         self.game_over=True
+
+        pepper_final_dialog = self.gemini.get_robot_endgame_prompts(self.winner)
+        self.active_behavior.talk(pepper_final_dialog)
+        #threading.Thread(target=self.active_behavior.talk, args=(pepper_final_dialog,)).start()
+
         #TODO call Gemini function for end Auction
         # final_state = self.get_game_state({
         #     "message": end_message,
@@ -110,7 +117,7 @@ class GameManager:
         return self.get_game_state()
 
     def player_action(self):
-        value = capture_audio()
+        value, self.human_dialogue = capture_audio()
         if value is None:
             print("TOCCA AL PLAYYERRRR")
             return "Error" , {"error": f"Offerta non valida: Puoi ripetere per favore?"}
@@ -148,7 +155,7 @@ class GameManager:
                     return "Error" , {"error": f"Offerta non valida: {value}. Deve essere maggiore di {self.auction.current_bid}."}
                 
     def robot_action(self):    
-        bid_json = self.gemini.bid(hobbies=self.hobbies)
+        bid_json = self.gemini.bid(hobbies=self.hobbies, name=self.human_name, user_messages=self.human_dialogue)
         self.ai_dialogue = bid_json.get("Dialogo", "...")
         ai_action = bid_json.get("Azione", "PASSO")
         self.active_behavior.talk_and_move(bid_json)
@@ -285,17 +292,23 @@ class GameManager:
 
 
     def get_hobbies(self, behavior):
+        #pepper_dialog = self.gemini.presentation() #{"dialogo": "Ciao! Piacere di conoscerti. Io sono Pepper, un robot curioso. Tu come ti chiami?"}
+        #if pepper_dialog.get("dialogo") is not None:
+            #behavior.talk(pepper_dialog["dialogo"])
+        #else:
+            #self.human_name = pepper_dialog.get("name")
+            #self.hobbies = pepper_dialog.get("hobbies")
+            #return
+        dialoghi_presentation=["Ciao! Piacere di conoscerti. Io sono Pepper, un robot curioso. Tu come ti chiami?"]
+        behavior.talk(dialoghi_presentation[random.randint(0, len(dialoghi_presentation)-1)])
 
-        pepper_dialog = self.gemini.presentation()
-        if pepper_dialog.get("dialogo") is not None:
-            behavior.talk(pepper_dialog["dialogo"])
-        else:
-            self.human_name = pepper_dialog.get("name")
-            self.hobbies = pepper_dialog.get("hobbies")
-            return
-        #threading.Thread(target=self.behavior.talk, args=(pepper_dialog["dialogo"],)).start()
-        text = capture_audio()
-        pepper_dialog = self.gemini.presentation(text)
+        nome_utente = capture_audio_sync()
 
+        dialoghi_hobby=["Che bel nome! Sono molto interessato a conoscere gli umani. Quali sono i tuoi hobby o i tuoi interessi principali?"]
+        behavior.talk(dialoghi_hobby[random.randint(0, len(dialoghi_hobby)-1)])
 
+        hobbies_utente = capture_audio_sync()
 
+        response = self.gemini.name_hobbies(nome_utente, hobbies_utente)
+        self.human_name = response.get("nome")
+        self.hobbies = response.get("hobby")

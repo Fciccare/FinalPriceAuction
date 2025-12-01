@@ -20,16 +20,45 @@ class Gemini:
         self.personalita = "cooperativo e amichevole" if self.auction.modalita_cooperativa else "competitivo e sarcastico e cattivo"
 
 
-    def presentation(self, message = None):
-        if message is None:
-            response = self.chat.send_message(dialogo_conoscitivo())
-        else:
-            response = self.chat.send_message(message)
+    # def presentation(self, message = None):
+    #     if message is None:
+    #         response = self.chat.send_message(dialogo_conoscitivo())
+    #     else:
+    #         response = self.chat.send_message(message)
 
-        return response
+    #     return response
+    
+    def name_hobbies(self, name, hobbies, retries=10):
+        try:
+            response = self.chat.send_message(extract_name_hobbies(name, hobbies))
+            return response
+        except Exception as e:
+            print(f"Errore durante la comunicazione col modello: {e}")
+            if retries > 0:
+                print(f"Riprovo... ({retries} tentativi rimasti)")
+                time.sleep(3)
+                return self.name_hobbies(name, hobbies, retries - 1)
+            else:
+                print("Errore persistente, ritorno None")
+                return None
+
+    def get_robot_endgame_prompts(self, winner, retries=10):
+        try:
+            response = self.chat.send_message(get_robot_endgame_prompts(winner, self.personalita))
+            return response
+        except Exception as e:
+            print(f"Errore durante la comunicazione col modello: {e}")
+            if retries > 0:
+                print(f"Riprovo... ({retries} tentativi rimasti)")
+                time.sleep(3)
+                return self.get_robot_endgame_prompts(winner, retries - 1)
+            else:
+                print("Errore persistente, ritorno None")
+                return None
 
 
-    def bid(self, hobbies, retries=10):
+
+    def bid(self, hobbies, name, user_messages, retries=10):
         prompt_turno = generate_prompt_turno(
             tipo_oggetto=self.auction.deck.current_card.category_name,
             valore_pv=self.auction.deck.current_card.victory_points,
@@ -43,7 +72,9 @@ class Gemini:
             monete_umano=self.auction.human.budget,
             collezioni_umano=self.auction.human.cards,
             personalita=self.personalita,
-            hobby_utente=hobbies
+            hobby_utente=hobbies,
+            user_name=name,
+            user_message=user_messages    
         )
 
         try:
@@ -99,3 +130,4 @@ class Gemini:
             else:
                 print("Errore persistente, ritorno None")
                 return None
+            

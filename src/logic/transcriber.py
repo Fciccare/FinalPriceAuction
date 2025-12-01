@@ -33,8 +33,8 @@ def extract_number(text):
     return None
 
 
-def capture_audio_sync():
-    duration = 8  # secondi
+def capture_audio_sync(duration=8):
+    #duration = 8  # secondi
     fs = 16000  # frequenza di campionamento richiesta da Whisper
 
     print("Inizio registrazione...")
@@ -56,12 +56,12 @@ def capture_audio_sync():
     return result["text"]
 
 
-def capture_audio():
+def capture_audio(duration=8):
     #loop = asyncio.get_event_loop()
     #return await loop.run_in_executor(executor, capture_audio_sync)
-    text = capture_audio_sync()
+    text = capture_audio_sync(duration=duration)
 
     if "passo" in text.lower():
-        return "PASSO"
+        return "PASSO", text
     else:
-        return extract_number(text)
+        return extract_number(text), text
