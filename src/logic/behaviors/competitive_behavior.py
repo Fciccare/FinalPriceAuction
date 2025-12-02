@@ -1,7 +1,7 @@
 import random
 import time
 
-from src.logic.behaviors.pepper import Pepper
+from behaviors.pepper import *
 
 import argparse
 import qi

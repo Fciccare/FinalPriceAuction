@@ -1,7 +1,7 @@
 import time
 import random
 
-from src.logic.behaviors.pepper import Pepper
+from behaviors.pepper import *
 
 GREETING = ['animations/Stand/Gestures/Hey_1', 'animations/Stand/Gestures/Hey_3'] #'animations/Stand/Gestures/BowShort_1',
 POSITIVE = ['animations/Stand/Emotions/Positive/Happy_4', 'animations/Stand/Gestures/Enthusiastic_4', 'animations/Stand/Gestures/Yes_1', 'animations/Stand/Gestures/Yes_3']
@@ -29,23 +29,22 @@ class CollaborativeBehavior(Pepper):
 
         self.motion.setStiffnesses("Body", 1.0)
 
-        # self.pose_dictionary = {
-        #         "power_pose": self.pose_power_pose,
-        #         "crossed_arms": self.pose_crossed_arms,
-        #         "strategist": self.pose_the_strategist,
-        #         "forward_lean": self.pose_forward_lean,
-        #         "pointing_finger": self.pose_pointing_finger,
-        #         "intense_stare": self.pose_intense_stare,
-        #         "take_space": self.pose_take_space,
-        #         "gauntlet": self.pose_the_gauntlet
-        #     }
+        self.pose_dictionary = {
+                "active_listening": self.pose_1_ascolto_attivo,
+                "mani_giunte": self.pose_2_attesa_mani_giunte,
+                "offerta": self.pose_3_gesto_offerta,
+                "riflessione": self.pose_4_riflessione,
+                "entusiasta": self.pose_7_entusiasta,
+                "happy": self.pose_8_felice,
+                "yes": self.pose_9_yes
+            }
         
     def talk_and_move(self, dialogo_robot):
 
         azione = dialogo_robot.get("Azione")
         frase = dialogo_robot.get("Dialogo", "")
 
-        self.execute_random_competitive_pose()
+        self.execute_random_collaborative_pose()
 
         if azione is not None:
             if azione == "PASSO":
@@ -60,7 +59,7 @@ class CollaborativeBehavior(Pepper):
         time.sleep(1)
         self.reset_pose()
 
-    def execute_random_competitive_pose(self):
+    def execute_random_collaborative_pose(self):
         """
         Chooses and executes a random competitive pose
         from the pose dictionary.
@@ -193,123 +192,18 @@ class CollaborativeBehavior(Pepper):
         self._execute_pose(joints, angles, 0.1)
 
 
-    def pose_5_incoraggiamento(self):
-        """
-        5. Incoraggiamento: Piccolo e contenuto "pugno" di esultanza.
-        """
-        print("5. Posa di Incoraggiamento (Forza!)")
-        
-        # Movimento 1: Pugni bassi
-        self._execute_pose(
-            ["LElbowRoll", "RElbowRoll", "LHand", "RHand", "LWristYaw", "RWristYaw"],
-            [-0.8, 0.8, 0.1, 0.1, -1.0,1.0], 0.8)
-        time.sleep(0.5)
-        
-        for i in range(3):
-            # Movimento 2: Piccolo scatto verso l'alto
-            self._execute_pose(
-                ["LShoulderPitch", "RShoulderPitch"],
-                [0.8, 0.8], 0.8)
-            time.sleep(0.5)
-            
-            # Ritorno
-            self._execute_pose(
-                ["LShoulderPitch", "RShoulderPitch"],
-                [1.2, 1.2], 0.8)
-            time.sleep(0.5)
-        
+    def pose_7_entusiasta(self):
+        """Apre le braccia in segno di accoglienza."""
+        #print("Eseguo animazione braccia aperte...")
+        self.animation_player_service.run("animations/Stand/Gestures/Enthusiastic_4")
+
+    def pose_8_felice(self):
+        self.animation_player_service.run("animations/Stand/Emotions/Positive/Happy_4")
+
+    def pose_9_yes(self):
+        self.animation_player_service.run("animations/Stand/Gestures/Yes_1")
 
 
-    def pose_6_incertezza(motion_service):
-        """
-        6. Incertezza: Solleva le "spalle" e apre le mani.
-        """
-        print("6. Posa di Incertezza (Non so...)")
-        
-        joint_names = [
-            "LShoulderPitch", "LShoulderRoll", "LElbowRoll", "LHand",
-            "RShoulderPitch", "RShoulderRoll", "RElbowRoll", "RHand",
-            "HeadYaw"
-        ]
-        
-        # LShoulderPitch/RShoulderPitch 0.8 = "spalle" su
-        # LHand/RHand 1.0 = mani aperte
-        angles = [
-            0.8, 0.3, -0.5, 1.0,
-            0.8, -0.3, 0.5, 1.0,
-            0.0 # Testa dritta
-        ]
-        speed = 0.2
-        motion_service.angleInterpolationWithSpeed(joint_names, angles, speed)
-        
-        # Aggiunge un leggero scuotimento della testa
-        motion_service.angleInterpolationWithSpeed("HeadYaw", [-0.2, 0.2, 0.0], [0.3, 0.3, 0.3])
-
-
-    def pose_7_orientamento(motion_service):
-        """
-        7. Orientamento: Ruota la base per seguire l'umano.
-        Qui simuliamo una rotazione.
-        """
-        print("7. Posa di Orientamento (Ti seguo)")
-        
-        # Ruota sul posto (Theta = 0.4 radianti, circa 23 gradi)
-        # moveTo è bloccante, useremo moveToward per un controllo più fluido
-        
-        # (Velocità X, Velocità Y, Velocità Theta)
-        # Ruota a sinistra al 20% della velocità massima
-        motion_service.moveToward(0.0, 0.0, 0.2) 
-        time.sleep(1.5) # Ruota per 1.5 secondi
-        motion_service.stopMove() # Ferma il movimento
-        
-        time.sleep(1)
-        
-        # Ruota indietro
-        motion_service.moveToward(0.0, 0.0, -0.2)
-        time.sleep(1.5)
-        motion_service.stopMove()
-
-
-    def pose_8_cenno_conferma(motion_service):
-        """
-        8. Cenno di Conferma: Lento "sì" con la testa.
-        """
-        print("8. Posa Cenno di Conferma (Sì)")
-        
-        # Movimento "Sì" (Su-Giù)
-        # [Giù, Su, Centro]
-        angles = [0.2, -0.1, 0.0]
-        times = [0.8, 1.6, 2.2] # Tempi lenti e deliberati
-        
-        motion_service.angleInterpolation("HeadPitch", angles, times, True)
-
-
-    def pose_9_cedere_spazio(motion_service):
-        """
-        9. Cedere Spazio: Fa un piccolo passo indietro.
-        """
-        print("9. Posa Cedere Spazio (Mi sposto)")
-        
-        # moveTo(x, y, theta)
-        # x = -0.1 (10cm indietro)
-        motion_service.moveTo(-0.1, 0.0, 0.0)
-
-
-    def pose_10_proposta(motion_service):
-        """
-        10. Proposta: Indica un punto sul tavolo, dal basso.
-        """
-        print("10. Posa Proposta (Indicare basso)")
-        
-        # Usiamo il braccio sinistro
-        joint_names = ["LShoulderPitch", "LShoulderRoll", "LElbowRoll", "LHand"]
-        
-        # Braccio basso (1.4), quasi dritto (LElbowRoll -0.2)
-        # Mano quasi chiusa per "indicare" (LHand 0.1)
-        angles = [1.4, 0.2, -0.2, 0.1]
-        speed = 0.1
-        
-        motion_service.angleInterpolationWithSpeed(joint_names, angles, speed)
 
     def shutdown(self):
         """

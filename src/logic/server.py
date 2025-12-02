@@ -9,12 +9,17 @@ import traceback
 import argparse
 import qi
 import threading
-from src.logic.behaviors.collaborative_behavior import CollaborativeBehavior
-from src.logic.behaviors.competitive_behavior import CompetitiveBehavior
+from behaviors.collaborative_behavior import CollaborativeBehavior
+from behaviors.competitive_behavior import CompetitiveBehavior
+
+from transcriber import load_model
 
 session = None
+print("Agg mis a Noneeeeee")
 
 if session is None:
+    print("Sono entrato nella session!!!!!!!!!!!")
+    load_model()
     active_behavior = None
     data_file = GameManager.get_from_json_file("pepper_config.json")
     ROBOT_IP = data_file['ip']
@@ -25,8 +30,9 @@ if session is None:
     parser.add_argument("--nao_version", type=str, default="v6", help="Version of nao you wish to use.")
     parser.add_argument("--ip", type=str, default=ROBOT_IP, help="Robot IP address.")
     parser.add_argument("--sock", type=str, default="server", help="Robot socket side: server or client.")
+    parser.add_argument("--coop", action="store_true", help="If set, robot is cooperative")  # flag booleano
     args = parser.parse_args()
-    coop_mode = False
+    coop_mode = args.coop
 
     try:
         port = str(PORT)
@@ -153,4 +159,4 @@ if __name__ == '__main__':
     #port = int(os.environ.get('PORT', 500)) 
     port = 5000
     # 'debug=True' ricarica il server ad ogni modifica
-    app.run(host=ip_address, port=port, debug=True)
+    app.run(host=ip_address, port=port)

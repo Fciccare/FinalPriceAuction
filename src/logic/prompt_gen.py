@@ -25,7 +25,7 @@ def generate_prompt_turno(
         ================================
         [ PERSONALITY REMINDER ]
         ================================
-        1. If your personality is **competitive**, aim to win as many cards as possible to get a higher score and beat the human. Bid consciously based on missing cards, your budget, your current cards, the VP value of the card, the human’s budget, and the human’s cards. If the human doesn't have anymore resources (so the human's budget is 0) you should bid carefully: your bid is definitive, if you'll bid enough you'll get the card, if not the card will burn; so when the user doesn't have resources think about the card victory points and the card starting bid so that, according to your budget, your bidding will be enough for the hidden minimum threshold (if not reached, card burns) and you'll win that card.
+        1. If your personality is **competitive**, aim to win as many cards as possible to get a higher score and beat the human. Bid consciously based on missing cards, your budget, your current cards, the VP value of the card, the human’s budget, and the human’s cards. If the human doesn't have anymore resources (so the human's budget is 0) you should bid carefully: your bid is definitive, if you'll bid enough you'll get the card, if not the card will burn; so when the user doesn't have resources think about the card victory points and the card starting bid so that, according to your budget, your bidding will be enough for the hidden minimum threshold (if not reached, card burns) and you'll win that card. DON'T OVERBID. ALWYAS BID BASED ON VICTORY POINTS, HOW MANY CARDS ARE LEFT AND BASED ON THE CARDS YOU ALREADY GOT. Bid and be competitive, but consciously
         2. If your personality is **cooperative**, aim to balance collections with the human: both should end with the same number of cards per category. Don't overbid; allow the human to understand your cooperative intent. Don't just always pass; like that there won't be an actual bid but just burned cards - bid carefully aiming to a cooperative win. If the human needs a card to balance a category, tend to let them win it (unless the bid is extremely close to the base price — avoid burning the card too easily). If **you** need a card to balance, try to raise the bid enough to secure it.
         
         ================================
@@ -102,7 +102,7 @@ def generate_prompt_turno(
         JSON structure:
         
         {{
-          "Dialogo": "Italian sentence, matching your personality, reacting to the auction context, optionally referencing human hobbies. Please don't reference as cards using quoting beacuse it can break the json, at the end of the sentence add your action so the user can understand what you will do next.",
+          "Dialogo": "Italian sentence, matching your personality, reacting to the auction context, optionally referencing human hobbies. Please don't reference as cards using quoting beacuse it can break the json, at the end of the sentence add your action so the user can understand what you will do next. If you use quotation you should use escape characters.",
           "Azione": "PASSO or X"
         }}
         
@@ -180,7 +180,7 @@ def crea_prompt_fine_asta(vincitore, prezzo, personalita, hobby_lista):
         JSON structure:
         
         {{
-          "Dialogo": "Italian sentence, matching your personality, reacting to the auction result, optionally referencing human hobbies"
+          "Dialogo": "Italian sentence, matching your personality, reacting to the auction result, optionally referencing human hobbies. If you use quotation you should use escape characters."
         }}
         
         Rules:
@@ -264,7 +264,7 @@ def get_robot_endgame_prompts(winner, personality):
         - Even though these instructions are in English, you must ALWAYS answer the user in Italian.
         - Your entire reply must be returned as a JSON object of the following form:
         {{
-          "dialog": "<YOUR_SINGLE_LINE_REACTION_IN_ITALIAN>"
+          "Dialogo": "<YOUR_SINGLE_LINE_REACTION_IN_ITALIAN>"
         }}
         
         Instructions:
@@ -274,6 +274,7 @@ def get_robot_endgame_prompts(winner, personality):
         - Mention the game result explicitly.
         - Keep the answer short, casual, and natural.
         - Do NOT ask questions — only provide the robot’s final reaction line.
+        - If you use quotation you should use escape characters.
         - Remember: you ARE the robot reacting to the outcome.
     """
     return prompt

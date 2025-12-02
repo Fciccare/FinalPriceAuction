@@ -4,9 +4,27 @@ from prompt_gen import *
 import json
 import time
 import os
+import threading  # Aggiunto per thread-safety
+
 
 class Gemini:
+    _instance = None
+    _lock = threading.Lock()
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            with cls._lock:
+                # Double-checked locking
+                if not cls._instance:
+                    cls._instance = super(Gemini, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self, model, auction):
+        """
+        Inizializza l'istanza solo se non è già stata inizializzata.
+        """
+        if getattr(self, "_initialized", False):
+            return
 
         script_dir = os.path.dirname(os.path.abspath(__file__))
         token_path = os.path.join(script_dir, "..", "util", "token.txt")
@@ -17,8 +35,9 @@ class Gemini:
         self.model = model
         self.chat = self.client.chats.create(model=self.model)
         self.auction = auction
-        self.personalita = "cooperativo e amichevole" if self.auction.modalita_cooperativa else "competitivo e sarcastico e cattivo"
-
+        self.personalita = None
+        # Segna l'istanza come inizializzata
+        self._initialized = True
 
     # def presentation(self, message = None):
     #     if message is None:
@@ -27,11 +46,19 @@ class Gemini:
     #         response = self.chat.send_message(message)
 
     #     return response
-    
+
+    def set_auction(self, auction):
+        self.auction = auction
+        self.personalita = "cooperativo e amichevole" if self.auction.modalita_cooperativa else "competitivo e sarcastico e cattivo"
+
     def name_hobbies(self, name, hobbies, retries=10):
         try:
             response = self.chat.send_message(extract_name_hobbies(name, hobbies))
-            return response
+            match = re.search(r"{.*}", response.text, re.DOTALL)
+            if not match:
+                raise ValueError("Nessun JSON trovato nella risposta")
+            json_res = json.loads(match.group())
+            return json_res
         except Exception as e:
             print(f"Errore durante la comunicazione col modello: {e}")
             if retries > 0:
@@ -45,7 +72,11 @@ class Gemini:
     def get_robot_endgame_prompts(self, winner, retries=10):
         try:
             response = self.chat.send_message(get_robot_endgame_prompts(winner, self.personalita))
-            return response
+            match = re.search(r"{.*}", response.text, re.DOTALL)
+            if not match:
+                raise ValueError("Nessun JSON trovato nella risposta")
+            json_res = json.loads(match.group())
+            return json_res
         except Exception as e:
             print(f"Errore durante la comunicazione col modello: {e}")
             if retries > 0:
@@ -55,8 +86,6 @@ class Gemini:
             else:
                 print("Errore persistente, ritorno None")
                 return None
-
-
 
     def bid(self, hobbies, name, user_messages, retries=10):
         prompt_turno = generate_prompt_turno(
@@ -74,7 +103,7 @@ class Gemini:
             personalita=self.personalita,
             hobby_utente=hobbies,
             user_name=name,
-            user_message=user_messages    
+            user_message=user_messages
         )
 
         try:
@@ -93,17 +122,19 @@ class Gemini:
             if retries > 0:
                 print(f"Riprovo... ({retries} tentativi rimasti)")
                 time.sleep(3)
-                return self.bid(hobbies, retries - 1)
+                return self.bid(hobbies, name, user_messages,
+                                retries - 1)  # Corretto: aggiunti argomenti mancanti nella ricorsione
             else:
                 print("Errore persistente, ritorno None")
                 return None
 
-        except Exception as e:  # cattura errori generici (es. ServerError)
+        except Exception as e:
             print(f"Errore durante la comunicazione col modello: {e}")
             if retries > 0:
                 print(f"Riprovo... ({retries} tentativi rimasti)")
                 time.sleep(3)
-                return self.bid(hobbies, retries - 1)
+                return self.bid(hobbies, name, user_messages,
+                                retries - 1)  # Corretto: aggiunti argomenti mancanti nella ricorsione
             else:
                 print("Errore persistente, ritorno None")
                 return None
@@ -121,13 +152,12 @@ class Gemini:
             dialogo = estrai_dialogo(response.text)
             print(response.text)
             return {"Dialogo": dialogo}
-        except Exception as e:  # cattura errori generici (es. ServerError)
+        except Exception as e:
             print(f"Errore durante la comunicazione col modello: {e}")
             if retries > 0:
                 print(f"Riprovo... ({retries} tentativi rimasti)")
                 time.sleep(3)
-                return self.bid(hobbies, retries - 1)
+                return self.turn_result(winner, hobbies, retries - 1)  # Corretto: chiamata ricorsiva al metodo giusto
             else:
                 print("Errore persistente, ritorno None")
                 return None
-            

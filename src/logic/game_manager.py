@@ -25,7 +25,7 @@ class GameManager:
         if not hasattr(self, 'initialized'):
             self.human_name = None
             self.auction: Optional[Auctions] = None
-            self.gemini: Optional[Gemini] = None
+            self.gemini: Optional[Gemini] = Gemini("gemini-2.5-flash",None)
             self.hobbies: list[str] = None # ["Videogiochi", "Cucina"] # Default
             self.current_card: Optional[Card] = None
             self.game_active: bool = False
@@ -35,28 +35,29 @@ class GameManager:
             self.last_auction_result: str = ""
             self.llm_turn: bool = False
             self.human_offer= None
-            self.robot_offer= None 
+            self.robot_offer= None
             self.winner= None
             self.game_over= False
             self.active_behavior = None
             self.human_dialogue = None
 
     def start_new_game(self, cooperative: bool = False, user_hobbies: list[str] = None, active_behavior = None):
-        load_model()
+        #load_model()
         """Inizia una nuova partita, sovrascrivendo quella vecchia."""
         self.auction = Auctions(modalita_cooperativa=cooperative)
         self.active_behavior = active_behavior
 
 
-        self.gemini = Gemini("gemini-2.5-flash", self.auction) 
+        #self.gemini = Gemini("gemini-2.5-flash", self.auction)
+        self.gemini.set_auction(self.auction)
         #TODO pulisci variabili per una nuova partita
-        
+
         #self.hobbies = user_hobbies if user_hobbies else self.hobbies
-        
+
         # Pesca la prima carta
         self.auction.deck.draw()
         self.current_card = self.auction.deck.current_card
-        
+
         if self.current_card:
             # Logga l'inizio della prima asta
             self.auction._log_game_state(self.current_card, "Inizio Asta", 0, None, None)
@@ -71,16 +72,16 @@ class GameManager:
         """Inizia un nuovo turno pescando una nuova carta."""
         if not self.is_game_active():
             return {"error": "Nessuna partita attiva."}
-        
+
         if self.auction.deck.draw():
             self.current_card = self.auction.deck.current_card
-            
+
             if not self.auction.is_bidding_possible(self.current_card):
                 return self._end_game("", "", "Fondi insufficienti per continuare.")
-        
+
             if not self.current_card:
                 return {"error": "Mazzo vuoto, impossibile iniziare un nuovo turno."}
-            
+
             # Resetta lo stato per il nuovo turno
             self.auction.human.has_passed = False
             self.auction.robot.has_passed = False
@@ -88,7 +89,7 @@ class GameManager:
             self.auction.current_bid = 0
             self.auction.highest_bidder = None
             self.current_offer = 0
-            
+
             # Logga l'inizio della nuova asta
             self.auction._log_game_state(self.current_card, "Inizio Turno", 0, None, None)
         else:
@@ -103,8 +104,9 @@ class GameManager:
         self.game_over=True
 
         pepper_final_dialog = self.gemini.get_robot_endgame_prompts(self.winner)
-        self.active_behavior.talk(pepper_final_dialog)
-        #threading.Thread(target=self.active_behavior.talk, args=(pepper_final_dialog,)).start()
+        print(pepper_final_dialog)
+        #self.active_behavior.talk_and_move(pepper_final_dialog)
+        threading.Thread(target=self.active_behavior.talk_and_move, args=(pepper_final_dialog,)).start()
 
         #TODO call Gemini function for end Auction
         # final_state = self.get_game_state({
@@ -117,7 +119,9 @@ class GameManager:
         return self.get_game_state()
 
     def player_action(self):
+        self.active_behavior.eyes_color("red")
         value, self.human_dialogue = capture_audio()
+        self.active_behavior.reset_eyes()
         if value is None:
             print("TOCCA AL PLAYYERRRR")
             return "Error" , {"error": f"Offerta non valida: Puoi ripetere per favore?"}
@@ -153,13 +157,13 @@ class GameManager:
                     return "Robot", self.get_game_state()
                 else:
                     return "Error" , {"error": f"Offerta non valida: {value}. Deve essere maggiore di {self.auction.current_bid}."}
-                
-    def robot_action(self):    
+
+    def robot_action(self):
         bid_json = self.gemini.bid(hobbies=self.hobbies, name=self.human_name, user_messages=self.human_dialogue)
         self.ai_dialogue = bid_json.get("Dialogo", "...")
         ai_action = bid_json.get("Azione", "PASSO")
         self.active_behavior.talk_and_move(bid_json)
-        
+
         if ai_action == "PASSO":
             if self.auction.manage_auction(self.current_card, "pass"):
                 if self.auction.resolve_auction(self.current_card, self.auction.human,self.human_offer):
@@ -217,7 +221,7 @@ class GameManager:
 
         self.last_auction_result = ""
         self.llm_turn = False
-        
+
         # --- 1. Azione dell'UMANO ---
         state, message = self.player_action()
         if(state == "Error"):
@@ -233,7 +237,7 @@ class GameManager:
                 return message
         else:
             return message
-        
+
     # Helper per convertire le chiavi Enum in stringhe
     def serialize_counts(self, counts_dict):
         return {k.value: v for k, v in counts_dict.items()}
@@ -243,7 +247,7 @@ class GameManager:
         """Serializza lo stato attuale del gioco in un dizionario JSON-friendly."""
         if not self.is_game_active():
             return {"game_active": False}
-        
+
         state = {
             "game_active": True,
             "game_over": self.game_over,
@@ -278,9 +282,9 @@ class GameManager:
 
         if extra_data:
             state.update(extra_data)
-            
+
         return state
-    
+
 
     @staticmethod
     def get_from_json_file(filename):
@@ -300,15 +304,23 @@ class GameManager:
             #self.hobbies = pepper_dialog.get("hobbies")
             #return
         dialoghi_presentation=["Ciao! Piacere di conoscerti. Io sono Pepper, un robot curioso. Tu come ti chiami?"]
-        behavior.talk(dialoghi_presentation[random.randint(0, len(dialoghi_presentation)-1)])
+        behavior.tts.say(dialoghi_presentation[0])
 
+        behavior.eyes_color("red")
         nome_utente = capture_audio_sync()
+        behavior.reset_eyes()
 
         dialoghi_hobby=["Che bel nome! Sono molto interessato a conoscere gli umani. Quali sono i tuoi hobby o i tuoi interessi principali?"]
-        behavior.talk(dialoghi_hobby[random.randint(0, len(dialoghi_hobby)-1)])
+        behavior.tts.say(dialoghi_hobby[0])
 
+        behavior.eyes_color("red")
         hobbies_utente = capture_audio_sync()
+        behavior.reset_eyes()
 
         response = self.gemini.name_hobbies(nome_utente, hobbies_utente)
+        print(response)
         self.human_name = response.get("nome")
         self.hobbies = response.get("hobby")
+
+        dialoghi_inizio=["Perfetto, iniziamo a giocare!"]
+        behavior.tts.say(dialoghi_inizio[0])

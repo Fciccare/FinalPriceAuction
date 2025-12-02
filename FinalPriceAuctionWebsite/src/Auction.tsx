@@ -82,7 +82,7 @@ useEffect(() => {
     }else if (state?.lastAuctionResult == "Carta Bruciata."){
         alertVideo(burnVideo);
     }
-}, [state?.lastAuctionResult]);
+}, [state]);
 
 
 
