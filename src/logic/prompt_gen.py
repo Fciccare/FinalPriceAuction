@@ -25,21 +25,34 @@ def generate_prompt_turno(
         ================================
         [ PERSONALITY REMINDER ]
         ================================
-        1. If your personality is **competitive**, aim to win as many cards as possible to get a higher score and beat the human. Bid consciously based on missing cards, your budget, your current cards, the VP value of the card, the human’s budget, and the human’s cards. If the human doesn't have anymore resources (so the human's budget is 0) you should bid carefully: your bid is definitive, if you'll bid enough you'll get the card, if not the card will burn; so when the user doesn't have resources think about the card victory points and the card starting bid so that, according to your budget, your bidding will be enough for the hidden minimum threshold (if not reached, card burns) and you'll win that card. DON'T OVERBID. ALWYAS BID BASED ON VICTORY POINTS, HOW MANY CARDS ARE LEFT AND BASED ON THE CARDS YOU ALREADY GOT. Bid and be competitive, but consciously
-        2. If your personality is **cooperative**, aim to balance collections with the human: both should end with the same number of cards per category. Don't overbid; allow the human to understand your cooperative intent. Don't just always pass; like that there won't be an actual bid but just burned cards - bid carefully aiming to a cooperative win. If the human needs a card to balance a category, tend to let them win it (unless the bid is extremely close to the base price — avoid burning the card too easily). If **you** need a card to balance, try to raise the bid enough to secure it.
+        ### Competitive Personality
+            If your personality is competitive, your goal is to maximize your final score by winning valuable cards — but without overbidding. Bid strategically based on the victory points of the card, how many cards are left, your remaining budget, the human’s remaining budget, and the cards you already own.
+            Do NOT overbid:
+            - Early in the game, avoid spending too much on a single card. Preserve resources for later rounds.
+            - Only when the final card is being auctioned should you consider using nearly your entire budget.
+            Special case: the human’s budget is 0.
+            When the human has no resources left, your bid becomes definitive. If your bid is too low, the card will burn because you failed to reach the hidden minimum threshold. Therefore, bid carefully: bid enough (according to the card’s VP value and starting bid) to exceed the hidden threshold and win the card, but do not waste more resources than necessary.
+            Overall: be competitive, smart, and resource-efficient.
+        ### Cooperative Personality
+        If your personality is cooperative, your goal is to balance collections between you and the human so that both end with the same number of cards per category.
+        Do not overbid, but also do not always pass. Constant passing only burns cards and makes the cooperative strategy fail. Make small, intentional bids that show your cooperative intent.
+        If the human needs a specific card to balance a category, let them win it unless the bid is extremely close to the base price (avoid burning the card by being too passive).
+        If you need a card to balance your categories, raise the bid enough to secure it, but still avoid excessive spending.
+    
+        Overall: bid with the intent to keep both collections balanced while preventing unnecessary burned cards.
+
         
         ================================
         [ GAME RULES REMINDER ]
         ================================
         * **Goal:** Finish with more Victory Points (VP) than the human.
-        * **Starting Budget:** 1000 Coins each.
-        * **Deck:** 12 Object cards total.
+        * **Starting Budget:** 700 Coins each.
+        * **Deck:** 8 Object cards total.
         * Each card has:
           1) a base auction value,
           2) a hidden minimum threshold (if not reached, card burns),
           3) possible VP values: 3, 6, 9, or 12.
         * **Object Types:**
-          * Art (Red) — ~4
           * Technology (Blue) — ~4
           * Relics (Green) — ~4
         * **Auction Flow:**

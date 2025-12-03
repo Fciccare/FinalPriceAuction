@@ -1,7 +1,7 @@
 from enum import Enum
 
 class Category(Enum):
-    ART = "Arte"
+    # ART = "Arte"
     TECHNOLOGY = "Tecnologia"
     RELIC = "Reliquia"
 

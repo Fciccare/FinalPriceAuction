@@ -1,47 +1,11 @@
 [
   {
-    "card_name": "Bussola d'Oro",
-    "category_name": "Arte",
-    "category_color": "red",
-    "victory_points": 3,
-    "starting_bid": 10,
-    "heat_requirement": 35,
-    "img_url": "deck/images/deck1/bussola_d_oro.png"
-  },
-  {
-    "card_name": "Anfora Greca",
-    "category_name": "Arte",
-    "category_color": "red",
-    "victory_points": 6,
-    "starting_bid": 15,
-    "heat_requirement": 61,
-    "img_url": "deck/images/deck1/anfora_greca.png"
-  },
-  {
-    "card_name": "Arazzo Reale",
-    "category_name": "Arte",
-    "category_color": "red",
-    "victory_points": 9,
-    "starting_bid": 25,
-    "heat_requirement": 96,
-    "img_url": "deck/images/deck1/arazzo_reale.png"
-  },
-  {
-    "card_name": "La Canzone della Seta",
-    "category_name": "Arte",
-    "category_color": "red",
-    "victory_points": 12,
-    "starting_bid": 35,
-    "heat_requirement": 123,
-    "img_url": "deck/images/deck1/canzone_della_seta.png"
-  },
-  {
     "card_name": "Manuale di Alchimia",
     "category_name": "Tecnologia",
     "category_color": "blue",
     "victory_points": 3,
-    "starting_bid": 10,
-    "heat_requirement": 62,
+    "starting_bid": 26,
+    "heat_requirement": 64,
     "img_url": "deck/images/deck1/manuale_alchimia.png"
   },
   {
@@ -49,8 +13,8 @@
     "category_name": "Tecnologia",
     "category_color": "blue",
     "victory_points": 6,
-    "starting_bid": 15,
-    "heat_requirement": 74,
+    "starting_bid": 30,
+    "heat_requirement": 76,
     "img_url": "deck/images/deck1/chip_ai.png"
   },
   {
@@ -58,8 +22,8 @@
     "category_name": "Tecnologia",
     "category_color": "blue",
     "victory_points": 9,
-    "starting_bid": 25,
-    "heat_requirement": 102,
+    "starting_bid": 42,
+    "heat_requirement": 104,
     "img_url": "deck/images/deck1/progetto_ornitottero.png"
   },
   {
@@ -67,8 +31,8 @@
     "category_name": "Tecnologia",
     "category_color": "blue",
     "victory_points": 12,
-    "starting_bid": 35,
-    "heat_requirement": 118,
+    "starting_bid": 48,
+    "heat_requirement": 120,
     "img_url": "deck/images/deck1/reattore_arc.png"
   },
   {
@@ -76,8 +40,8 @@
     "category_name": "Reliquia",
     "category_color": "green",
     "victory_points": 3,
-    "starting_bid": 10,
-    "heat_requirement": 48,
+    "starting_bid": 20,
+    "heat_requirement": 50,
     "img_url": "deck/images/deck1/spada_steve.png"
   },
   {
@@ -85,8 +49,8 @@
     "category_name": "Reliquia",
     "category_color": "green",
     "victory_points": 6,
-    "starting_bid": 15,
-    "heat_requirement": 73,
+    "starting_bid": 30,
+    "heat_requirement": 75,
     "img_url": "deck/images/deck1/mantello_cesare.png"
   },
   {
@@ -94,8 +58,8 @@
     "category_name": "Reliquia",
     "category_color": "green",
     "victory_points": 9,
-    "starting_bid": 25,
-    "heat_requirement": 87,
+    "starting_bid": 36,
+    "heat_requirement": 89,
     "img_url": "deck/images/deck1/frammento_obelisco.png"
   },
   {
@@ -103,8 +67,8 @@
     "category_name": "Reliquia",
     "category_color": "green",
     "victory_points": 12,
-    "starting_bid": 35,
-    "heat_requirement": 121,
+    "starting_bid": 49,
+    "heat_requirement": 122,
     "img_url": "deck/images/deck1/corona_sommersa.png"
   }
 ]

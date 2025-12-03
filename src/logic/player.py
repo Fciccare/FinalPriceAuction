@@ -62,9 +62,14 @@ class Player:
         """
         return {k: len(v) for k, v in self.cards.items()}
 
+    # def __repr__(self):
+    #     return (f"Player('{self.player_id}', budget={self.budget}, "
+    #             f"Arte={len(self.cards[Category.ART])}, "
+    #             f"Tecnologia={len(self.cards[Category.TECHNOLOGY])}, "
+    #             f"Reliquie={len(self.cards[Category.RELIC])})")
+
     def __repr__(self):
         return (f"Player('{self.player_id}', budget={self.budget}, "
-                f"Arte={len(self.cards[Category.ART])}, "
                 f"Tecnologia={len(self.cards[Category.TECHNOLOGY])}, "
                 f"Reliquie={len(self.cards[Category.RELIC])})")
     

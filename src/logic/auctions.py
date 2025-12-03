@@ -7,7 +7,7 @@ from deck import Deck
 from card import *
 
 class Auctions:
-    def __init__(self, budget_umano=1000, budget_robot=1000, modalita_cooperativa=True):
+    def __init__(self, budget_umano=700, budget_robot=700, modalita_cooperativa=True):
 
         # Setup players
         self.human = Player("Umano", 0 , budget_umano)
@@ -265,11 +265,11 @@ class Auctions:
             "Budget_Robot": self.robot.budget,
             "Umano_Passato": self.human.has_passed,
             "Robot_Passato": self.robot.has_passed,
-            "Arte_Umano": human_cards.get(Category.ART, 0),
+            #"Arte_Umano": human_cards.get(Category.ART, 0),
             "Tecnologia_Umano": human_cards.get(Category.TECHNOLOGY, 0),
             "Reliquie_Umano": human_cards.get(Category.RELIC, 0),
             "Punti_Umano": self.human.calculate_victory_points(),
-            "Arte_Robot": robot_cards.get(Category.ART, 0),
+            #"Arte_Robot": robot_cards.get(Category.ART, 0),
             "Tecnologia_Robot": robot_cards.get(Category.TECHNOLOGY, 0),
             "Reliquie_Robot": robot_cards.get(Category.RELIC, 0),
             "Punti_Robot": self.robot.calculate_victory_points(),
@@ -314,12 +314,20 @@ class Auctions:
             df = pd.DataFrame(self.log_data)
 
             # Imposta le colonne nell'ordine desiderato
+            # colonne_ordinate = [
+            #     "Log_ID", "Asta_Num", "Carta_Asta", "Categoria", "Player_Azione", "Azione",
+            #     "Offerta_Corrente", "Miglior_Offerente", "Budget_Umano", "Budget_Robot",
+            #     "Umano_Passato", "Robot_Passato",
+            #     "Arte_Umano", "Tecnologia_Umano", "Reliquie_Umano", "Punti_Umano",
+            #     "Arte_Robot", "Tecnologia_Robot", "Reliquie_Robot", "Punti_Robot",
+            #     "Carte_Mazzo"
+            # ]
+
             colonne_ordinate = [
                 "Log_ID", "Asta_Num", "Carta_Asta", "Categoria", "Player_Azione", "Azione",
                 "Offerta_Corrente", "Miglior_Offerente", "Budget_Umano", "Budget_Robot",
-                "Umano_Passato", "Robot_Passato",
-                "Arte_Umano", "Tecnologia_Umano", "Reliquie_Umano", "Punti_Umano",
-                "Arte_Robot", "Tecnologia_Robot", "Reliquie_Robot", "Punti_Robot",
+                "Umano_Passato", "Robot_Passato", "Tecnologia_Umano", "Reliquie_Umano", "Punti_Umano",
+                "Tecnologia_Robot", "Reliquie_Robot", "Punti_Robot",
                 "Carte_Mazzo"
             ]
             # Aggiungi eventuali colonne mancanti (sebbene non dovrebbe succedere)

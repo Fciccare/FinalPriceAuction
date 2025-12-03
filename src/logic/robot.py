@@ -26,8 +26,14 @@ class Robot(Player):
         self.type_R = type_R
 
 
+    # def __repr__(self):
+    #     return (f"Robot('{self.player_id}', Tipologia='{self.type_R}', "
+    #             f"budget={self.budget}, Arte={len(self.cards[Category.ART])}, "
+    #             f"Tecnologia={len(self.cards[Category.TECHNOLOGY])}, "
+    #             f"Reliquie={len(self.cards[Category.RELIC])})")
+
     def __repr__(self):
         return (f"Robot('{self.player_id}', Tipologia='{self.type_R}', "
-                f"budget={self.budget}, Arte={len(self.cards[Category.ART])}, "
+                f"budget={self.budget}, "
                 f"Tecnologia={len(self.cards[Category.TECHNOLOGY])}, "
                 f"Reliquie={len(self.cards[Category.RELIC])})")
