@@ -31,9 +31,9 @@ class CompetitiveBehavior(Pepper):
 
         # azione = dialogo_robot.get("Azione")
         frase = dialogo_robot.get("Dialogo", "")
-        print("prima della move")
+        # print("prima della move")
         self.execute_random_competitive_pose()
-        print("frase: ", frase)
+        # print("frase: ", frase)
         # if azione is not None:
         #     if azione == "PASSO":
         #         frase = frase + "Passo il turno."
@@ -41,7 +41,7 @@ class CompetitiveBehavior(Pepper):
         #         frase = frase + "Punto" + azione + "Monete."
 
         if frase:
-            print(f"Robot dice: {frase}")
+            # print(f"Robot dice: {frase}")
             self.tts.say(frase)
 
         time.sleep(1)
@@ -65,9 +65,9 @@ class CompetitiveBehavior(Pepper):
         # 3. Retrieve the function ('value') from the dictionary
         chosen_pose_function = self.pose_dictionary[chosen_pose_name]
         
-        print("\n" + ("-"*30))
-        print(f"Random pose chosen: {chosen_pose_name.upper()}")
-        print(("-")*30)
+        #print("\n" + ("-"*30))
+        # print(f"Random pose chosen: {chosen_pose_name.upper()}")
+        #print(("-")*30)
         
         # 4. Execute the function
         chosen_pose_function()
@@ -80,7 +80,7 @@ class CompetitiveBehavior(Pepper):
         if not self.posture:
             print("Servizio non inizializzato.")
             return
-        print("Torno alla posa 'Stand'...")
+        # print("Torno alla posa 'Stand'...")
         self.posture.goToPosture("Stand", speed)
 
     def _execute_pose(self, joint_names, joint_angles, speed=0.3):
@@ -104,7 +104,7 @@ class CompetitiveBehavior(Pepper):
         1. La "Power Pose" (Mani sui Fianchi)
         Braccia piegate con i polsi vicino ai fianchi.
         """
-        print("Eseguo: 1. Power Pose")
+        print("Eseguo: Power Pose")
         joints = [
             "LHand","LShoulderRoll", "LElbowRoll", "LShoulderPitch", "LWristYaw", "LElbowYaw",
             "RHand","RShoulderRoll", "RElbowRoll", "RShoulderPitch", "RWristYaw", "RElbowYaw"
@@ -122,7 +122,7 @@ class CompetitiveBehavior(Pepper):
         2. Le Braccia Conserte (L'Assertivo)
         Braccia incrociate sul petto, sotto il tablet.
         """
-        print("Eseguo: 2. Braccia Conserte")
+        print("Eseguo: Braccia Conserte")
         joints = [
             "LHand", 'LShoulderPitch', 'LElbowYaw', 'LElbowRoll', 
             "RHand", 'RShoulderPitch', 'RElbowYaw', 'RElbowRoll'
@@ -138,7 +138,7 @@ class CompetitiveBehavior(Pepper):
         3. Lo Stratega (Mano al Mento)
         Mano destra al mento, testa leggermente inclinata.
         """
-        print("Eseguo: 3. Lo Stratega")
+        print("Eseguo: Lo Stratega")
         joints = [
             "RShoulderPitch", "RShoulderRoll", "RElbowRoll", "RElbowYaw", "RHand","RWristYaw",
             "LShoulderPitch", "LShoulderRoll", # Braccio sinistro rilassato
@@ -156,7 +156,7 @@ class CompetitiveBehavior(Pepper):
         5. L'Inclinazione in Avanti (Il Predatore)
         Busto inclinato in avanti.
         """
-        print("Eseguo: 5. Inclinazione in Avanti")
+        print("Eseguo: Inclinazione in Avanti")
         joints = ["HipPitch", "HeadPitch"]
         angles = [
             -0.4,  # Busto in avanti
@@ -169,7 +169,7 @@ class CompetitiveBehavior(Pepper):
         6. La Sfida (Dito Puntato)
         Braccio destro teso in avanti, mano chiusa a "indicare".
         """
-        print("Eseguo: 6. Dito Puntato")
+        print("Eseguo: Dito Puntato")
         joints = [
             "RShoulderPitch", "RShoulderRoll", "RElbowRoll", "RHand"
         ]
@@ -184,7 +184,7 @@ class CompetitiveBehavior(Pepper):
         Solo un movimento della testa.
         (Non mi convince)
         """
-        print("Eseguo: 7. Sguardo Intenso")
+        print("Eseguo: Sguardo Intenso")
         joints = ["HeadPitch"]
         angles = [0.3]  # Testa giù (il tracking penserà a "occhi alti")
         self._execute_pose(joints, angles)
@@ -195,7 +195,7 @@ class CompetitiveBehavior(Pepper):
         9. Presa di Spazio (Braccia Larghe)
         Braccia larghe con gomiti a 90 gradi.
         """
-        print("Eseguo: 9. Presa di Spazio")
+        print("Eseguo: Presa di Spazio")
         joints = [
             "LShoulderRoll", "LElbowRoll", "LShoulderPitch", "LHand",
             "RShoulderRoll", "RElbowRoll", "RShoulderPitch", "RHand"
@@ -211,7 +211,7 @@ class CompetitiveBehavior(Pepper):
         10. Il Guanto di Sfida (Palmi in Avanti)
         Braccia piegate in avanti con i palmi aperti.
         """
-        print("Eseguo: 10. Guanto di Sfida")
+        print("Eseguo: Guanto di Sfida")
         joints = [
             "LShoulderPitch", "LElbowRoll", "LWristYaw", "LHand",
             "RShoulderPitch", "RElbowRoll", "RWristYaw", "RHand"

@@ -108,7 +108,7 @@ class Gemini:
 
         try:
             response = self.chat.send_message(prompt_turno)
-            print("Risposta del modello:", response.text)
+            #print("Risposta del modello:", response.text)
 
             match = re.search(r"{.*}", response.text, re.DOTALL)
             if not match:

@@ -1,6 +1,6 @@
 import json
 import os
-from random import random
+import random
 import threading
 
 from auctions import Auctions
@@ -104,7 +104,7 @@ class GameManager:
         self.game_over=True
 
         pepper_final_dialog = self.gemini.get_robot_endgame_prompts(self.winner)
-        print(pepper_final_dialog)
+        # print(pepper_final_dialog)
         #self.active_behavior.talk_and_move(pepper_final_dialog)
         threading.Thread(target=self.active_behavior.talk_and_move, args=(pepper_final_dialog,)).start()
 
@@ -123,10 +123,10 @@ class GameManager:
         value, self.human_dialogue = capture_audio()
         self.active_behavior.reset_eyes()
         if value is None:
-            print("TOCCA AL PLAYYERRRR")
+            #print("TOCCA AL PLAYYERRRR")
             return "Error" , {"error": f"Offerta non valida: Puoi ripetere per favore?"}
         elif value == "PASSO":
-            print("PASSOOOOOOOOOO")
+            #print("PASSOOOOOOOOOO")
             if self.auction.manage_auction(self.current_card, "pass"):
                 if self.auction.resolve_auction(self.current_card, self.auction.robot,self.robot_offer):
                     dialogo_robot = self.gemini.turn_result(self.auction.robot.player_id, hobbies=self.hobbies)
@@ -146,7 +146,7 @@ class GameManager:
                 self.llm_turn = True
                 return "Robot", self.get_game_state()
         else:
-            print(f"Offerta del player: {self.current_offer}, {self.auction.human.budget}, {self.auction.current_bid}")
+            #print(f"Offerta del player: {self.current_offer}, {self.auction.human.budget}, {self.auction.current_bid}")
             if not self.auction.can_bid(self.auction.human, self.current_card,self.current_offer):
                 return "Robot", {"error": "Fondi insufficienti per questa offerta."}
             else:
@@ -182,9 +182,9 @@ class GameManager:
                     self.start_new_turn()
                     return "", self.get_game_state()
         else:
-            print(f"Offerta del robot precast: {ai_action}")
+            #print(f"Offerta del robot precast: {ai_action}")
             value_bid = int(ai_action)
-            print(f"Offerta del robot: {value_bid}")
+            #print(f"Offerta del robot: {value_bid}")
             #TODO controlla fondi del robot non deve sforare i fondi
             if self.auction.manage_auction(self.current_card, value_bid):
                     self.robot_offer = value_bid
@@ -282,7 +282,7 @@ class GameManager:
 
         if extra_data:
             state.update(extra_data)
-
+        print(state)
         return state
 
 
@@ -296,22 +296,20 @@ class GameManager:
 
 
     def get_hobbies(self, behavior):
-        #pepper_dialog = self.gemini.presentation() #{"dialogo": "Ciao! Piacere di conoscerti. Io sono Pepper, un robot curioso. Tu come ti chiami?"}
-        #if pepper_dialog.get("dialogo") is not None:
-            #behavior.talk(pepper_dialog["dialogo"])
-        #else:
-            #self.human_name = pepper_dialog.get("name")
-            #self.hobbies = pepper_dialog.get("hobbies")
-            #return
-        dialoghi_presentation=["Ciao! Piacere di conoscerti. Io sono Pepper, un robot curioso. Tu come ti chiami?"]
-        behavior.tts.say(dialoghi_presentation[0])
+        dialoghi_presentation=["Ciao! Piacere di conoscerti. Io sono Pepper, un robot curioso. Tu come ti chiami?",
+                               "Ciao! Sono Pepper, piacere di conoscerti! Sono molto curioso di sapere chi ho davanti. Tu come ti chiami?",
+                               "Ciao! Che piacere conoscerti, io sono Pepper. Come ti chiami?"]
+        behavior.tts.say(random.choice(dialoghi_presentation))
 
         behavior.eyes_color("red")
-        nome_utente = capture_audio_sync()
+        nome_utente = capture_audio_sync(duration=5)
         behavior.reset_eyes()
 
-        dialoghi_hobby=["Che bel nome! Sono molto interessato a conoscere gli umani. Quali sono i tuoi hobby o i tuoi interessi principali?"]
-        behavior.tts.say(dialoghi_hobby[0])
+        dialoghi_hobby=["Che bel nome! Sono molto interessato a conoscere gli umani. Quali sono i tuoi hobby o i tuoi interessi principali?",
+                        "Piacere di conoscerti! Dimmi un po’, cosa ti piace fare nel tempo libero?",
+                        "Piacere di conoscerti! È bellissimo parlare con te. Dimmi un po', cosa ti piace fare nel tempo libero? Hai degli hobby o degli interessi particolari?"
+                        ]
+        behavior.tts.say(random.choice(dialoghi_hobby))
 
         behavior.eyes_color("red")
         hobbies_utente = capture_audio_sync()
@@ -322,5 +320,7 @@ class GameManager:
         self.human_name = response.get("nome")
         self.hobbies = response.get("hobby")
 
-        dialoghi_inizio=["Perfetto, iniziamo a giocare!"]
-        behavior.tts.say(dialoghi_inizio[0])
+        dialoghi_inizio=["Perfetto, iniziamo a giocare!",
+                         "Che belle passioni. Quando sei pronto iniziamo a giocare!",
+                         "Sei pronto per iniziare un gioco insieme?"]
+        behavior.tts.say(random.choice(dialoghi_inizio))

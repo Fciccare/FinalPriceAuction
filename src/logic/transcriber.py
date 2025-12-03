@@ -15,7 +15,7 @@ def load_model():
     torch.cuda.empty_cache()
 
     device, model_name = ("cuda", "turbo") if torch.cuda.is_available() else ("cpu", "small")
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
+    print("Model loaded.")
     global model
     model = whisper.load_model(model_name).to(device)
 
@@ -34,7 +34,7 @@ def extract_number(text):
 
 
 def capture_audio_sync(duration=8):
-    #duration = 8  # secondi
+    #duration = 8 secondi
     fs = 16000  # frequenza di campionamento richiesta da Whisper
 
     print("Inizio registrazione...")

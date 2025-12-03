@@ -15,10 +15,8 @@ from behaviors.competitive_behavior import CompetitiveBehavior
 from transcriber import load_model
 
 session = None
-print("Agg mis a Noneeeeee")
 
 if session is None:
-    print("Sono entrato nella session!!!!!!!!!!!")
     load_model()
     active_behavior = None
     data_file = GameManager.get_from_json_file("pepper_config.json")
@@ -52,8 +50,10 @@ if session is None:
 
         if coop_mode:
             active_behavior = CollaborativeBehavior(session, args.ip, args, port)
+            print("Robot is cooperative.")
         else:
             active_behavior = CompetitiveBehavior(session, args.ip, args, port)
+            print("Robot is competitive.")
 
         if active_behavior.autonomus.getState != "disabled":
             active_behavior.autonomus.setState("disabled")
@@ -158,5 +158,5 @@ if __name__ == '__main__':
     # Usa la porta definita nell'ambiente, o 5000 come default
     #port = int(os.environ.get('PORT', 500)) 
     port = 5000
-    # 'debug=True' ricarica il server ad ogni modifica
+    # 'debug=True' ricarica il server a ogni modifica
     app.run(host=ip_address, port=port)

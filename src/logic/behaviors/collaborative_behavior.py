@@ -115,7 +115,7 @@ class CollaborativeBehavior(Pepper):
         """
         1. Ascolto Attivo: Inclina leggermente la testa di lato.
         """
-        print("1. Posa Ascolto Attivo (Testa inclinata)")
+        print("Eseguo: Posa Ascolto Attivo (Testa inclinata)")
         
         # Nomi dei giunti: [HeadYaw, HeadPitch]
         # HeadYaw: rotazione sinistra/destra
@@ -136,7 +136,7 @@ class CollaborativeBehavior(Pepper):
         """
         2. Attesa (Mani Giunte): Braccia piegate davanti, mani vicine.
         """
-        print("2. Posa di Attesa (Mani giunte)")
+        print("Eseguo: Posa di Attesa (Mani giunte)")
         
         joints = [
             "LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll", "LWristYaw", "LHand",
@@ -156,7 +156,7 @@ class CollaborativeBehavior(Pepper):
         """
         3. Gesto di Offerta: Un braccio avanti, palmo in su.
         """
-        print("3. Posa Gesto di Offerta (Palmo in su)")
+        print("Eseguo: Posa Gesto di Offerta (Palmo in su)")
         
         # Usiamo solo il braccio destro
         joints = ["RShoulderPitch", "RShoulderRoll", "RElbowRoll", "RWristYaw", "RHand"]
@@ -176,7 +176,7 @@ class CollaborativeBehavior(Pepper):
         """
         4. Riflessione: Una mano vicino al mento e testa leggermente inclinata.
         """
-        print("4. Posa di Riflessione (Mano al mento)")
+        print("Eseguo: Posa di Riflessione (Mano al mento)")
         
         joints = [
             "RShoulderPitch", "RElbowRoll", "RElbowYaw", "RWristYaw", "RHand",
@@ -194,13 +194,15 @@ class CollaborativeBehavior(Pepper):
 
     def pose_7_entusiasta(self):
         """Apre le braccia in segno di accoglienza."""
-        #print("Eseguo animazione braccia aperte...")
+        print("Eseguo: Entusiasta")
         self.animation_player_service.run("animations/Stand/Gestures/Enthusiastic_4")
 
     def pose_8_felice(self):
+        print("Eseguo: Felice")
         self.animation_player_service.run("animations/Stand/Emotions/Positive/Happy_4")
 
     def pose_9_yes(self):
+        print("Eseguo: Yes")
         self.animation_player_service.run("animations/Stand/Gestures/Yes_1")
 
 

@@ -88,14 +88,14 @@ class Auctions:
                 if active_player.can_bid(action):
                     self.current_bid = action
                     self.highest_bidder = active_player
-                    print(f"{active_player.player_id} bids ${self.current_bid}")
+                    #print(f"{active_player.player_id} bids ${self.current_bid}")
                     turn_log = f"Puntata ${self.current_bid}"
-                    print(active_player.player_id + " - "+ turn_log)
+                    #print(active_player.player_id + " - "+ turn_log)
                 else:
-                    print("Cant'Bid for ammount: " + active_player.player_id)
+                    #print("Cant'Bid for ammount: " + active_player.player_id)
                     return False
             else:
-                print("Cant'Bid: " + active_player.player_id)
+                #print("Cant'Bid: " + active_player.player_id)
                 return False
 
         self._log_game_state(card, turn_log, self.current_bid, self.highest_bidder, active_player)
@@ -106,7 +106,7 @@ class Auctions:
            if (active_player.budget >= card.starting_bid) and (active_player.budget > current_bid):
                 return True
            else:
-               print(f"{active_player.player_id} doesn't have enough funds and passes.")
+               #print(f"{active_player.player_id} doesn't have enough funds and passes.")
                active_player.has_passed = True
                turn_log = "Pass (Fondi Insuff.)"
                self._log_game_state(card, turn_log, current_bid, self.highest_bidder, active_player)
@@ -116,7 +116,7 @@ class Auctions:
     def resolve_auction(self, card, winner, winning_bid):
         # Case 1: Nobody bid (e.g., both pass immediately)
         if winner is None:
-            print(f"No bids. The card {card.card_name} is burned.")
+            #print(f"No bids. The card {card.card_name} is burned.")
             #self.burned_cards.append(card)
             self._log_game_state(card, "Bruciata (Nessuna Offerta)", winning_bid, winner, None)
             self.current_bid=0
@@ -126,7 +126,7 @@ class Auctions:
         # Case 2: There is a winner, check the hidden threshold (Rule 3)
         if winning_bid >= card.heat_requirement:
             # Success! The threshold is met
-            print(f"{winner.player_id} wins {card.card_name} for ${winning_bid}!")
+            #print(f"{winner.player_id} wins {card.card_name} for ${winning_bid}!")
             winner.win_card(card, winning_bid)
             self._log_game_state(card, "Vinta", winning_bid, winner, None)
             self.current_bid=0
@@ -135,8 +135,8 @@ class Auctions:
             return True
         else:
             # Failure! Threshold not met
-            print(f"{winner.player_id}'s bid (${winning_bid}) did not meet the heat requirement!")
-            print(f"The card {card.card_name} is burned. The budget is not subtracted.")
+            #print(f"{winner.player_id}'s bid (${winning_bid}) did not meet the heat requirement!")
+            #print(f"The card {card.card_name} is burned. The budget is not subtracted.")
             #self.burned_cards.append(card)
             self._log_game_state(card, "Bruciata (Soglia Non Raggiunta)", winning_bid, winner, None)
             self.current_bid=0
