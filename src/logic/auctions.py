@@ -7,7 +7,7 @@ from deck import Deck
 from card import *
 
 class Auctions:
-    def __init__(self, budget_umano=700, budget_robot=700, modalita_cooperativa=True):
+    def __init__(self, budget_umano=600, budget_robot=600, modalita_cooperativa=True):
 
         # Setup players
         self.human = Player("Umano", 0 , budget_umano)
@@ -145,44 +145,10 @@ class Auctions:
             return False
 
     def calculate_final_score(self):
-        if self.calculate_cooperative_victory():
-            self._log_game_state(None, "Cooperative WIN", 0, None, None)
-            self._save_log_to_excel()
-            return "Cooperative WIN"
-
-        else:
-            winner = self.calculate_competitive_victory()
-            self._log_game_state(None, winner, 0, None, None)
-            self._save_log_to_excel()
-            return  winner
-
-    def calculate_cooperative_victory(self):
-        print("\n--- Calculating Cooperative Victory (Rule 7) ---")
-
-        counts = {} # e.g.: {Category.ART: {"Human": 2, "Robot": 2}, ...}
-
-        # Initialize counts
-        for cat in Category:
-            counts[cat] = {self.human.player_id: 0, self.robot.player_id: 0}
-
-        # Count players' cards
-        for player in [self.human, self.robot]:
-            for cat, card_list in player.cards.items():
-                counts[cat][player.player_id] = len(card_list)
-
-        # Check the condition
-        victory = True
-        for cat in Category:
-            count_human = counts[cat][self.human.player_id]
-            count_robot = counts[cat][self.robot.player_id]
-            print(f"Category {cat.value}: Human {count_human}, Robot {count_robot}")
-            if count_human != count_robot:
-                victory = False
-
-        if victory:
-            return True
-        else:
-            return False
+        winner = self.calculate_competitive_victory()
+        self._log_game_state(None, winner, 0, None, None)
+        self._save_log_to_excel()
+        return  winner
 
 
         # Inside the Game class
@@ -208,13 +174,13 @@ class Auctions:
             human_has = len(self.human.cards[cat])
             robot_has = len(self.robot.cards[cat])
 
-            # Check for +20 bonus (Rule 5b)
-            if human_has == 4:
+            # Check for +10 bonus (Rule 5b)
+            if human_has == 3:
                 print(f"Human gets +20 VP (all {cat.value} cards)")
-                human_score += 20
+                human_score += 10
             elif robot_has == 4:
                 print(f"Robot gets +20 VP (all {cat.value} cards)")
-                robot_score += 20
+                robot_score += 10
 
             # Otherwise, check for +5 bonus (Rule 5a)
             elif human_has > robot_has:
@@ -236,8 +202,8 @@ class Auctions:
             winner="Robot"
             print("The Robot wins!")
         else:
-            winner = "Pareggio"
-            print("It's a draw!")
+            winner = "Robot"
+            print("The Robot wins!")
         return winner
 
 

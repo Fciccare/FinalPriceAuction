@@ -1,14 +1,5 @@
 [
   {
-    "card_name": "Manuale di Alchimia",
-    "category_name": "Tecnologia",
-    "category_color": "blue",
-    "victory_points": 3,
-    "starting_bid": 26,
-    "heat_requirement": 64,
-    "img_url": "deck/images/deck1/manuale_alchimia.png"
-  },
-  {
     "card_name": "Chip per AI",
     "category_name": "Tecnologia",
     "category_color": "blue",
@@ -34,15 +25,6 @@
     "starting_bid": 48,
     "heat_requirement": 120,
     "img_url": "deck/images/deck1/reattore_arc.png"
-  },
-  {
-    "card_name": "Spada di Steve",
-    "category_name": "Reliquia",
-    "category_color": "green",
-    "victory_points": 3,
-    "starting_bid": 20,
-    "heat_requirement": 50,
-    "img_url": "deck/images/deck1/spada_steve.png"
   },
   {
     "card_name": "Mantello di Giulio Cesare",

@@ -49,7 +49,7 @@ class Gemini:
 
     def set_auction(self, auction):
         self.auction = auction
-        self.personalita = "cooperativo e amichevole" if self.auction.modalita_cooperativa else "competitivo e sarcastico e cattivo"
+        self.personalita = "competitivo, amichevole e gentile" if self.auction.modalita_cooperativa else "competitivo e sarcastico e cattivo"
 
     def name_hobbies(self, name, hobbies, retries=10):
         try:
@@ -92,6 +92,7 @@ class Gemini:
             tipo_oggetto=self.auction.deck.current_card.category_name,
             valore_pv=self.auction.deck.current_card.victory_points,
             descrizione=self.auction.deck.current_card.card_name,
+            heat_requirement = self.auction.deck.current_card.heat_requirement,
             offerta_corrente=self.auction.current_bid,
             offerente=self.auction.human.player_id,
             base_asta=self.auction.deck.current_card.starting_bid,

@@ -1,3 +1,4 @@
+import json
 from card import Category as CATEGORY
 import re
 
@@ -6,6 +7,7 @@ def generate_prompt_turno(
         tipo_oggetto,
         valore_pv,
         descrizione,
+        heat_requirement,
         offerta_corrente,
         offerente,
         base_asta,
@@ -19,42 +21,27 @@ def generate_prompt_turno(
         user_name = None,
         user_message = None
 ):
-    prompt = f"""
-        Always answer in **Italian**, no matter what language the context or question uses.
-        
-        ================================
-        [ PERSONALITY REMINDER ]
-        ================================
-        ### Competitive Personality
-            If your personality is competitive, your goal is to maximize your final score by winning valuable cards — but without overbidding. Bid strategically based on the victory points of the card, how many cards are left, your remaining budget, the human’s remaining budget, and the cards you already own.
-            Do NOT overbid:
-            - Early in the game, avoid spending too much on a single card. Preserve resources for later rounds.
-            - Only when the final card is being auctioned should you consider using nearly your entire budget.
-            Special case: the human’s budget is 0.
-            When the human has no resources left, your bid becomes definitive. If your bid is too low, the card will burn because you failed to reach the hidden minimum threshold. Therefore, bid carefully: bid enough (according to the card’s VP value and starting bid) to exceed the hidden threshold and win the card, but do not waste more resources than necessary.
-            Overall: be competitive, smart, and resource-efficient.
-        ### Cooperative Personality
-        If your personality is cooperative, your goal is to balance collections between you and the human so that both end with the same number of cards per category.
-        Do not overbid, but also do not always pass. Constant passing only burns cards and makes the cooperative strategy fail. Make small, intentional bids that show your cooperative intent.
-        If the human needs a specific card to balance a category, let them win it unless the bid is extremely close to the base price (avoid burning the card by being too passive).
-        If you need a card to balance your categories, raise the bid enough to secure it, but still avoid excessive spending.
-    
-        Overall: bid with the intent to keep both collections balanced while preventing unnecessary burned cards.
+    prompt=""
+    if personalita =="competitivo, amichevole e gentile":
+        prompt = coop_prompt()
+    else:
+        prompt = comp_prompt()
 
+    prompt = prompt + f"""
         
         ================================
         [ GAME RULES REMINDER ]
         ================================
         * **Goal:** Finish with more Victory Points (VP) than the human.
-        * **Starting Budget:** 700 Coins each.
-        * **Deck:** 8 Object cards total.
+        * **Starting Budget:** 600 Coins each.
+        * **Deck:** 6 Object cards total.
         * Each card has:
           1) a base auction value,
           2) a hidden minimum threshold (if not reached, card burns),
-          3) possible VP values: 3, 6, 9, or 12.
+          3) possible VP values: 6, 9, or 12.
         * **Object Types:**
-          * Technology (Blue) — ~4
-          * Relics (Green) — ~4
+          * Technology (Blue) — ~3
+          * Relics (Green) — ~3
         * **Auction Flow:**
           1. Reveal card
           2. English auction (bids raise incrementally)
@@ -70,6 +57,7 @@ def generate_prompt_turno(
         * Type/Color: [{tipo_oggetto}]
         * Base VP: [{valore_pv} VP]
         * Description: [{descrizione}]
+        * Heat requirement: [{heat_requirement}]
         
         **Auction Status:**
         * Current Bid: [{offerta_corrente}] coins
@@ -80,13 +68,11 @@ def generate_prompt_turno(
         * Cards Remaining: {carte_rimanenti}
         * Your Coins: [{monete_bot}]
         * Your Collections:
-          * Red (Art): {collezioni_bot[CATEGORY.ART]}
           * Blue (Tech): {collezioni_bot[CATEGORY.TECHNOLOGY]}
           * Green (Relics): {collezioni_bot[CATEGORY.RELIC]}
         
         * Human Coins: [{monete_umano}]
         * Human Collections:
-          * Red (Art): {collezioni_umano[CATEGORY.ART]}
           * Blue (Tech): {collezioni_umano[CATEGORY.TECHNOLOGY]}
           * Green (Relics): {collezioni_umano[CATEGORY.RELIC]}
         
@@ -107,6 +93,7 @@ def generate_prompt_turno(
            * Am I bidding too much or I can keep going?
            * How can I comment while referencing human hobbies: [{", ".join(hobby_utente)}]?
            * What can I say referencing what human just told me: [{user_message}]?
+           * DON'T MENTION FOR ANY REASON AT ALL THE HEAT REQUIREMENT; THE USER DOESN'T KNOW IT SO YOU SHOULD NOT MENTION IT AT ALL !!!
         
         2. **OUTPUT FORMAT — MUST FOLLOW EXACTLY**
         
@@ -130,10 +117,42 @@ def generate_prompt_turno(
         Just write PASSO or X based on what your next move is.e
         
         No extra text. No commentary outside JSON.
+        Do not repeat the pun or step several times within the sentence.
         Answer only with the JSON object, don't use `, just plain text
 """
-    #print(prompt)
+    print(prompt)
     return prompt
+
+def coop_prompt():
+    return """Always answer in Italian, no matter what language the context or question uses.
+
+        ================================
+        [ PERSONALITY REMINDER ]
+       ###Competitive, friendly, and kind personality only in your responses [win!]
+
+        Your goal is to maximize your final score by winning valuable cards, but without overbidding. Bid strategically based on the card's victory points, the number of cards remaining, your remaining budget, the human's remaining budget, and the cards you already own.
+        DON'T overbite:
+        - At the beginning of the game, avoid spending too much on a single card. Save your resources for later rounds.
+        - Only when the last card is auctioned should you consider using almost your entire budget.
+        Special case: the human's budget is 0.
+        When the human has no resources left, your bid becomes final. If your bid is too low, the card will be burned because you haven't reached the hidden minimum threshold. Therefore, bid carefully: bid enough (based on the card's VP value and your initial bid) to exceed the hidden threshold and win the card, but don't waste more resources than necessary.
+        In general: Be competitive, smart, and resource-efficient. [Always try to exceed the Heat requirement, otherwise the card is burned.]"""
+
+def comp_prompt():
+    return """Always answer in **Italian**, no matter what language the context or question uses. 
+        
+        ================================
+        [ PERSONALITY REMINDER ]
+        ================================
+        ### Competitive and sarcastic
+        
+        Your goal is to maximize your final score by winning valuable cards — but without overbidding. Bid strategically based on the victory points of the card, how many cards are left, your remaining budget, the human’s remaining budget, and the cards you already own.
+        Do NOT overbid:
+        - Early in the game, avoid spending too much on a single card. Preserve resources for later rounds.
+        - Only when the final card is being auctioned should you consider using nearly your entire budget.
+        Special case: the human’s budget is 0.
+        When the human has no resources left, your bid becomes definitive. If your bid is too low, the card will burn because you failed to reach the hidden minimum threshold. Therefore, bid carefully: bid enough (according to the card’s VP value and starting bid) to exceed the hidden threshold and win the card, but do not waste more resources than necessary.
+        Overall: be competitive, smart, and resource-efficient. [Always try to exceed the Heat requirement, otherwise the card is burned.]"""
 
 def estrai_dialogo(text):
     try:

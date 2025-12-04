@@ -31,6 +31,11 @@ class CompetitiveBehavior(Pepper):
 
         # azione = dialogo_robot.get("Azione")
         frase = dialogo_robot.get("Dialogo", "")
+        # ultima = frase.rfind(".")
+        #
+        # penultima = frase.rfind(".", 0, ultima)
+        # frase = frase[:penultima+1] + frase[ultima+1:]
+
         # print("prima della move")
         self.execute_random_competitive_pose()
         # print("frase: ", frase)
@@ -42,6 +47,7 @@ class CompetitiveBehavior(Pepper):
 
         if frase:
             # print(f"Robot dice: {frase}")
+            frase = frase.replace("\"", " ")
             self.tts.say(frase)
 
         time.sleep(1)

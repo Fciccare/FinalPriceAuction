@@ -23,7 +23,6 @@ class Player:
             self.cards: Dict[str, List[Card]] = cards_list
         else:
             self.cards = {
-                Category.ART: [],
                 Category.TECHNOLOGY: [],
                 Category.RELIC: []
             }
@@ -38,9 +37,7 @@ class Player:
         """
         self.budget -= cost
 
-        if Category.ART == card.category_name:
-            self.cards[Category.ART].append(card)
-        elif Category.TECHNOLOGY == card.category_name :
+        if Category.TECHNOLOGY == card.category_name :
             self.cards[Category.TECHNOLOGY].append(card)
         elif Category.RELIC == card.category_name:
                 self.cards[Category.RELIC].append(card)

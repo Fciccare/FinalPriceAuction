@@ -36,7 +36,9 @@ class CollaborativeBehavior(Pepper):
                 "riflessione": self.pose_4_riflessione,
                 "entusiasta": self.pose_7_entusiasta,
                 "happy": self.pose_8_felice,
-                "yes": self.pose_9_yes
+                "yes": self.pose_9_yes,
+                "cinque": self.pose_11_cinque,
+                "saluto": self.pose_10_saluto
             }
         
     def talk_and_move(self, dialogo_robot):
@@ -44,16 +46,22 @@ class CollaborativeBehavior(Pepper):
         azione = dialogo_robot.get("Azione")
         frase = dialogo_robot.get("Dialogo", "")
 
+        # ultima = frase.rfind(".")
+        #
+        # penultima = frase.rfind(".", 0, ultima)
+        # frase = frase[:penultima + 1] + frase[ultima + 1:]
+
         self.execute_random_collaborative_pose()
 
-        if azione is not None:
-            if azione == "PASSO":
-                frase = frase + "Passo il turno."
-            else:
-                frase = frase + "Punto" + azione + "Monete."
+        # if azione is not None:
+        #     if azione == "PASSO":
+        #         frase = frase + "Passo il turno."
+        #     else:
+        #         frase = frase + "Punto" + azione + "Monete."
 
         if frase:
-            print(f"Robot dice: {frase}")
+            # print(f"Robot dice: {frase}")
+            frase = frase.replace("\""," ")
             self.tts.say(frase)
         
         time.sleep(1)
@@ -165,11 +173,10 @@ class CollaborativeBehavior(Pepper):
         # RWristYaw 1.5 ~= 85 gradi (palmo quasi verticale)
         angles = [0.8, -0.3, 0.6, 1.5, 1.0]
         
-        self._execute_pose(joints, angles, 0.1)
-        time.sleep(3)
-        
+        self._execute_pose(joints, angles, 0.3)
+
         # Ritorno del braccio
-        self.stand_up()
+        # self.stand_up()
 
 
     def pose_4_riflessione(self):
@@ -200,11 +207,63 @@ class CollaborativeBehavior(Pepper):
     def pose_8_felice(self):
         print("Eseguo: Felice")
         self.animation_player_service.run("animations/Stand/Emotions/Positive/Happy_4")
+        self.reset_eyes()
 
     def pose_9_yes(self):
         print("Eseguo: Yes")
-        self.animation_player_service.run("animations/Stand/Gestures/Yes_1")
+        self.animation_player_service.run("animations/Stand/Gestures/Explain_4")
 
+    def pose_10_saluto(self):
+        """
+        Saluto amichevole con la mano destra.
+        """
+        print("Eseguo: il saluto")
+
+        joints = [
+            "RShoulderPitch", "RShoulderRoll",
+            "RElbowYaw", "RElbowRoll",
+            "RWristYaw", "RHand"
+        ]
+
+        # Braccio sollevato e mano aperta
+        angles = [
+            0.2, -0.2,  # spalla
+            1.0, 1.1,  # gomito
+            0.0, 1.0  # polso + mano aperta
+        ]
+
+        self._execute_pose(joints, angles, 0.2)
+        time.sleep(0.2)
+
+        # Piccolo movimento di "ciao"
+        for _ in range(2):
+            self._execute_pose(["RElbowRoll"], [0.7], 0.4)
+            time.sleep(0.3)
+            self._execute_pose(["RElbowRoll"], [1.1], 0.4)
+            time.sleep(0.3)
+
+        self.reset_pose()
+
+
+    def pose_11_cinque(self):
+        print("Eseguo: Cinque")
+
+        joints = [
+            "RShoulderPitch", "RShoulderRoll",
+            "RElbowYaw", "RElbowRoll",
+            "RWristYaw", "RHand"
+        ]
+
+        # Braccio sollevato e mano aperta
+        angles = [
+            0.2, -0.2,  # spalla
+            1.0, 1.1,  # gomito
+            0.0, 1.0  # polso + mano aperta
+        ]
+
+        self._execute_pose(joints, angles, 0.2)
+
+        self.reset_pose()
 
 
     def shutdown(self):

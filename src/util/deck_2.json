@@ -1,21 +1,12 @@
 [
   {
-    "card_name": "Visore VR",
-    "category_name": "Tecnologia",
-    "category_color": "blue",
-    "victory_points": 3,
-    "starting_bid": 26,
-    "heat_requirement": 64,
-    "img_url": "/images/deck2/visore_vr.png"
-  },
-  {
     "card_name": "Prima Copia di Minecraft",
     "category_name": "Tecnologia",
     "category_color": "blue",
     "victory_points": 6,
     "starting_bid": 32,
     "heat_requirement": 80,
-    "img_url": "/images/deck2/prima_minecraft.png"
+    "img_url": "deck/images/deck2/prima_minecraft.png"
   },
   {
     "card_name": "AI \"Architetto\"",
@@ -24,7 +15,7 @@
     "victory_points": 9,
     "starting_bid": 42,
     "heat_requirement": 104,
-    "img_url": "/images/deck2/AI_architetto.png"
+    "img_url": "deck/images/deck2/AI_architetto.png"
   },
   {
     "card_name": "Server \"Matrix\" Primario",
@@ -33,16 +24,7 @@
     "victory_points": 12,
     "starting_bid": 46,
     "heat_requirement": 115,
-    "img_url": "/images/deck2/server_matrix.png"
-  },
-  {
-    "card_name": "Artiglio di dinosauro",
-    "category_name": "Reliquia",
-    "category_color": "green",
-    "victory_points": 3,
-    "starting_bid": 18,
-    "heat_requirement": 46,
-    "img_url": "/images/deck2/artiglio_dinosauro.png"
+    "img_url": "deck/images/deck2/server_matrix.png"
   },
   {
     "card_name": "Console Anni '80",
@@ -51,7 +33,7 @@
     "victory_points": 6,
     "starting_bid": 33,
     "heat_requirement": 83,
-    "img_url": "/images/deck2/console_80.png"
+    "img_url": "deck/images/deck2/console_80.png"
   },
   {
     "card_name": "Macchina da Scrivere",
@@ -60,7 +42,7 @@
     "victory_points": 9,
     "starting_bid": 38,
     "heat_requirement": 95,
-    "img_url": "/images/deck2/macchina_scrivere.png"
+    "img_url": "deck/images/deck2/macchina_scrivere.png"
   },
   {
     "card_name": "Sfera per catturare creature",
@@ -69,6 +51,6 @@
     "victory_points": 12,
     "starting_bid": 45,
     "heat_requirement": 113,
-    "img_url": "/images/deck2/sfera_creature.png"
+    "img_url": "deck/images/deck2/sfera_creature.png"
   }
 ]

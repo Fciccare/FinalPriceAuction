@@ -119,7 +119,7 @@ class GameManager:
         return self.get_game_state()
 
     def player_action(self):
-        self.active_behavior.eyes_color("red")
+        self.active_behavior.eyes_color("blue")
         value, self.human_dialogue = capture_audio()
         self.active_behavior.reset_eyes()
         if value is None:
@@ -282,7 +282,7 @@ class GameManager:
 
         if extra_data:
             state.update(extra_data)
-        print(state)
+        # print(state)
         return state
 
 
@@ -301,7 +301,7 @@ class GameManager:
                                "Ciao! Che piacere conoscerti, io sono Pepper. Come ti chiami?"]
         behavior.tts.say(random.choice(dialoghi_presentation))
 
-        behavior.eyes_color("red")
+        behavior.eyes_color("blue")
         nome_utente = capture_audio_sync(duration=5)
         behavior.reset_eyes()
 
@@ -311,7 +311,7 @@ class GameManager:
                         ]
         behavior.tts.say(random.choice(dialoghi_hobby))
 
-        behavior.eyes_color("red")
+        behavior.eyes_color("blue")
         hobbies_utente = capture_audio_sync()
         behavior.reset_eyes()
 
