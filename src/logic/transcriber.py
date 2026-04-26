@@ -49,7 +49,7 @@ def capture_audio_sync(duration=8):
 
     # Trascrivi audio
     start_time = time.time()
-    result = model.transcribe(tmp_path, language="it")
+    result = model.transcribe(tmp_path, language="en")
     elapsed = time.time() - start_time
 
     print(result["text"], f"(Tempo: {elapsed:.2f}s)")
@@ -61,7 +61,8 @@ def capture_audio(duration=8):
     #return await loop.run_in_executor(executor, capture_audio_sync)
     text = capture_audio_sync(duration=duration)
 
-    if "passo" in text.lower():
+    if "pass" in text.lower() or "passo" in text.lower():
         return "PASSO", text
     else:
         return extract_number(text), text
+

@@ -5,6 +5,9 @@ from robot import Robot
 from player import Player
 from deck import Deck
 from card import *
+#from src.logic.prompt_gen import language
+
+language="English"
 
 class Auctions:
     def __init__(self, budget_umano=600, budget_robot=600, modalita_cooperativa=True):
@@ -17,10 +20,10 @@ class Auctions:
 
         # Setup deck
         if not modalita_cooperativa:
-            self.deck = Deck.load_from_json("deck_1.json")
+            self.deck = Deck.load_from_json("deck_1_eng.json")
             self.deck.shuffle()
         else:
-            self.deck = Deck.load_from_json("deck_2.json")
+            self.deck = Deck.load_from_json("deck_2_eng.json")
             self.deck.shuffle()
 
         #Setup Game
@@ -176,10 +179,10 @@ class Auctions:
 
             # Check for +10 bonus (Rule 5b)
             if human_has == 3:
-                print(f"Human gets +20 VP (all {cat.value} cards)")
+                print(f"Human gets +10 VP (all {cat.value} cards)")
                 human_score += 10
-            elif robot_has == 4:
-                print(f"Robot gets +20 VP (all {cat.value} cards)")
+            elif robot_has == 3:
+                print(f"Robot gets +10 VP (all {cat.value} cards)")
                 robot_score += 10
 
             # Otherwise, check for +5 bonus (Rule 5a)

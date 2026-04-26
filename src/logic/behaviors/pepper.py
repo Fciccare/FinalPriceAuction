@@ -234,9 +234,9 @@ class Pepper:
             # Questo blocco 'finally' assicura che il robot si fermi
             # e pulisca il tracker ANCHE se il loop fallisce o si interrompe.
             print("[Thread] Pulizia in corso...")
-            self.motion.stopMove()
-            self.tracker.stopTracker()
-            self.tracker.unregisterAllTargets()
+            #self.motion.stopMove()
+            #self.tracker.stopTracker()
+            #self.tracker.unregisterAllTargets()
             print("[Thread] Thread terminato.")
             # self.people_detected.unsubscribe("HumanDetected")
     

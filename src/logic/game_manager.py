@@ -129,14 +129,14 @@ class GameManager:
             #print("PASSOOOOOOOOOO")
             if self.auction.manage_auction(self.current_card, "pass"):
                 if self.auction.resolve_auction(self.current_card, self.auction.robot,self.robot_offer):
-                    dialogo_robot = self.gemini.turn_result(self.auction.robot.player_id, hobbies=self.hobbies)
+                    dialogo_robot = self.gemini.turn_result(self.auction.robot.player_id,self.auction.current_bid,  hobbies=self.hobbies)
                     self.ai_dialogue = dialogo_robot["Dialogo"]
                     self.active_behavior.talk_and_move(dialogo_robot)
                     self.last_auction_result = f"Vincitore: {self.auction.robot.player_id}"
                     self.start_new_turn()
                     return "", self.get_game_state()
                 else:
-                    dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
+                    dialogo_robot = self.gemini.turn_result("Burned",self.auction.current_bid, hobbies=self.hobbies)
                     self.ai_dialogue = dialogo_robot["Dialogo"]
                     self.active_behavior.talk_and_move(dialogo_robot)
                     self.last_auction_result = "Carta Bruciata."
@@ -167,7 +167,7 @@ class GameManager:
         if ai_action == "PASSO":
             if self.auction.manage_auction(self.current_card, "pass"):
                 if self.auction.resolve_auction(self.current_card, self.auction.human,self.human_offer):
-                    dialogo_robot = self.gemini.turn_result(self.auction.human.player_id, hobbies=self.hobbies)
+                    dialogo_robot = self.gemini.turn_result(self.auction.human.player_id,self.auction.current_bid, hobbies=self.hobbies)
                     self.ai_dialogue = dialogo_robot["Dialogo"]
                     threading.Thread(target=self.active_behavior.talk_and_move, args=(dialogo_robot,)).start()
                     #TODO aggiusta il dialogo
@@ -175,7 +175,7 @@ class GameManager:
                     self.start_new_turn()
                     return "", self.get_game_state()
                 else:
-                    dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
+                    dialogo_robot = self.gemini.turn_result("Burned",self.auction.current_bid, hobbies=self.hobbies)
                     self.ai_dialogue = dialogo_robot["Dialogo"]
                     threading.Thread(target=self.active_behavior.talk_and_move, args=(dialogo_robot,)).start()
                     self.last_auction_result = "Carta Bruciata."
@@ -192,7 +192,7 @@ class GameManager:
                     self.llm_turn = False
                     if self.auction.human.has_passed:
                         if self.auction.resolve_auction(self.current_card, self.auction.robot, self.robot_offer):
-                            dialogo_robot = self.gemini.turn_result(self.auction.robot.player_id, hobbies=self.hobbies)
+                            dialogo_robot = self.gemini.turn_result(self.auction.robot.player_id,self.auction.current_bid, hobbies=self.hobbies)
                             self.ai_dialogue = dialogo_robot["Dialogo"]
                             threading.Thread(target=self.active_behavior.talk_and_move, args=(dialogo_robot,)).start()
 
@@ -200,7 +200,7 @@ class GameManager:
                             self.start_new_turn()
                             return "", self.get_game_state()
                         else:
-                            dialogo_robot = self.gemini.turn_result("Burned", hobbies=self.hobbies)
+                            dialogo_robot = self.gemini.turn_result("Burned",self.auction.current_bid, hobbies=self.hobbies)
                             self.ai_dialogue = dialogo_robot["Dialogo"]
                             threading.Thread(target=self.active_behavior.talk_and_move, args=(dialogo_robot,)).start()
 
@@ -209,7 +209,8 @@ class GameManager:
                             return "", self.get_game_state()
                     return "Player", self.get_game_state()
             else:
-                return "Error" , {"error": f"Offerta non valida: {value_bid}. Deve essere maggiore di {self.auction.current_bid}."}
+                return self.robot_action()
+                # return "Error" , {"error": f"Offerta non valida: {value_bid}. Deve essere maggiore di {self.auction.current_bid}."}
 
     def handle_player_action(self) -> Dict[str, Any]:
         """
@@ -295,20 +296,72 @@ class GameManager:
         return data_file
 
 
+    # def get_hobbies(self, behavior):
+    #     dialoghi_presentation=["Ciao! Piacere di conoscerti. Io sono Pepper, un robot curioso. Tu come ti chiami?",
+    #                            "Ciao! Sono Pepper, piacere di conoscerti! Sono molto curioso di sapere chi ho davanti. Tu come ti chiami?",
+    #                            "Ciao! Che piacere conoscerti, io sono Pepper. Come ti chiami?"]
+    #     if behavior.language == "eng":
+    #         dialoghi_presentation=["Hello! Nice to meet you"]
+    #     behavior.tts.say(random.choice(dialoghi_presentation))
+    #
+    #     behavior.eyes_color("blue")
+    #     nome_utente = capture_audio_sync(duration=5)
+    #     behavior.reset_eyes()
+    #
+    #     dialoghi_hobby=["Che bel nome! Sono molto interessato a conoscere gli umani. Quali sono i tuoi hobby o i tuoi interessi principali?",
+    #                     "Piacere di conoscerti! Dimmi un po’, cosa ti piace fare nel tempo libero?",
+    #                     "Piacere di conoscerti! È bellissimo parlare con te. Dimmi un po', cosa ti piace fare nel tempo libero? Hai degli hobby o degli interessi particolari?"
+    #                     ]
+    #     behavior.tts.say(random.choice(dialoghi_hobby))
+    #
+    #     behavior.eyes_color("blue")
+    #     hobbies_utente = capture_audio_sync()
+    #     behavior.reset_eyes()
+    #
+    #     response = self.gemini.name_hobbies(nome_utente, hobbies_utente)
+    #     print(response)
+    #     self.human_name = response.get("nome")
+    #     self.hobbies = response.get("hobby")
+    #
+    #     dialoghi_inizio=["Perfetto, iniziamo a giocare!",
+    #                      "Che belle passioni. Quando sei pronto iniziamo a giocare!",
+    #                      ]
+    #     behavior.tts.say(random.choice(dialoghi_inizio))
+    # --- DIALOGHI PRESENTAZIONE ---
     def get_hobbies(self, behavior):
-        dialoghi_presentation=["Ciao! Piacere di conoscerti. Io sono Pepper, un robot curioso. Tu come ti chiami?",
-                               "Ciao! Sono Pepper, piacere di conoscerti! Sono molto curioso di sapere chi ho davanti. Tu come ti chiami?",
-                               "Ciao! Che piacere conoscerti, io sono Pepper. Come ti chiami?"]
+        dialoghi_presentation = [
+            "Ciao! Piacere di conoscerti. Io sono Pepper, un robot curioso. Tu come ti chiami?",
+            "Ciao! Sono Pepper, piacere di conoscerti! Sono molto curioso di sapere chi ho davanti. Tu come ti chiami?",
+            "Ciao! Che piacere conoscerti, io sono Pepper. Come ti chiami?"
+        ]
+
+        if behavior.language == "eng":
+            dialoghi_presentation = [
+                "Hello! Nice to meet you. I am Pepper, a curious robot. What is your name?",
+                "Hi! I'm Pepper, nice to meet you! I'm very curious to know who is in front of me. What is your name?",
+                "Hello! It's a pleasure to meet you, I am Pepper. What is your name?"
+            ]
+
         behavior.tts.say(random.choice(dialoghi_presentation))
 
         behavior.eyes_color("blue")
         nome_utente = capture_audio_sync(duration=5)
         behavior.reset_eyes()
 
-        dialoghi_hobby=["Che bel nome! Sono molto interessato a conoscere gli umani. Quali sono i tuoi hobby o i tuoi interessi principali?",
-                        "Piacere di conoscerti! Dimmi un po’, cosa ti piace fare nel tempo libero?",
-                        "Piacere di conoscerti! È bellissimo parlare con te. Dimmi un po', cosa ti piace fare nel tempo libero? Hai degli hobby o degli interessi particolari?"
-                        ]
+        # --- DIALOGHI HOBBY ---
+        dialoghi_hobby = [
+            "Che bel nome! Sono molto interessato a conoscere gli umani. Quali sono i tuoi hobby o i tuoi interessi principali?",
+            "Piacere di conoscerti! Dimmi un po’, cosa ti piace fare nel tempo libero?",
+            "Piacere di conoscerti! È bellissimo parlare con te. Dimmi un po', cosa ti piace fare nel tempo libero? Hai degli hobby o degli interessi particolari?"
+        ]
+
+        if behavior.language == "eng":
+            dialoghi_hobby = [
+                "What a nice name! I am very interested in getting to know humans. What are your hobbies or main interests?",
+                "Nice to meet you! Tell me, what do you like to do in your free time?",
+                "Nice to meet you! It's wonderful talking to you. Tell me, what do you like to do in your free time? Do you have any hobbies or special interests?"
+            ]
+
         behavior.tts.say(random.choice(dialoghi_hobby))
 
         behavior.eyes_color("blue")
@@ -320,7 +373,16 @@ class GameManager:
         self.human_name = response.get("nome")
         self.hobbies = response.get("hobby")
 
-        dialoghi_inizio=["Perfetto, iniziamo a giocare!",
-                         "Che belle passioni. Quando sei pronto iniziamo a giocare!",
-                         "Sei pronto per iniziare un gioco insieme?"]
+        # --- DIALOGHI INIZIO GIOCO ---
+        dialoghi_inizio = [
+            "Perfetto, iniziamo a giocare!",
+            "Che belle passioni. Quando sei pronto iniziamo a giocare!",
+        ]
+
+        if behavior.language == "eng":
+            dialoghi_inizio = [
+                "Perfect, let's start playing!",
+                "Those are great passions. When you are ready, let's start playing!"
+            ]
+
         behavior.tts.say(random.choice(dialoghi_inizio))

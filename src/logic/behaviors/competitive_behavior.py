@@ -8,22 +8,26 @@ import qi
 
 class CompetitiveBehavior(Pepper):
 
-    def __init__(self, session, ip, args, port):
+    def __init__(self, session, ip, args, port, language="eng"):
         super().__init__(session, ip, args, port)
-        
-        self.tts.setLanguage("Italian")
+        self.language = language
+
+        if language == "ita":
+            self.tts.setLanguage("Italian")
+        else:
+            self.tts.setLanguage("English")
 
         self.motion.setStiffnesses("Body", 1.0)
 
         self.pose_dictionary = {
                 "power_pose": self.pose_power_pose,
                 "crossed_arms": self.pose_crossed_arms,
-                "strategist": self.pose_the_strategist,
-                "forward_lean": self.pose_forward_lean,
-                "pointing_finger": self.pose_pointing_finger,
-                "intense_stare": self.pose_intense_stare,
+                #"strategist": self.pose_the_strategist,
+                #"forward_lean": self.pose_forward_lean,
+                #"pointing_finger": self.pose_pointing_finger,
+                #"intense_stare": self.pose_intense_stare,
                 "take_space": self.pose_take_space,
-                "gauntlet": self.pose_the_gauntlet
+                #"gauntlet": self.pose_the_gauntlet
             }
 
 

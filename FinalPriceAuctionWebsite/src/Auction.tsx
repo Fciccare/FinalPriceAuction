@@ -105,7 +105,7 @@ return (
 
                 {/* --- COLONNA SINISTRA: MAZZO DI CARTE --- */}
                 <div className="text-center">
-                    <h3 className="text-xl font-semibold mb-3">🂠 Carte rimaste: <span className="font-bold">{state?.cardsRemaining}</span></h3>
+                    <h3 className="text-xl font-semibold mb-3">🂠 Remaining Cards: <span className="font-bold">{state?.cardsRemaining}</span></h3>
                     <img
                         //src={"https://i.ibb.co/x9PZS8W/back-card.png"}
                         src={new URL("deck/images/back-card_clean.png", import.meta.url).href}
@@ -119,42 +119,42 @@ return (
                 <div className="flex flex-col items-center">
                     {/* Immagine della Carta */}
                     <img
-                        src={new URL(state?.currentCard?.image || "", import.meta.url).href}
+                        src={new URL("deck/images/deck1/chip_ai.png", import.meta.url).href}
                         width={380}
                         alt={"Carta in asta"}
                         className="rounded-xl shadow-2xl border-4 border-yellow-400"
                     />
-                    <div className="text-center mt-2 font-medium text-lg">Carta in asta</div>
+                    <div className="text-center mt-2 font-medium text-lg">Chip AI</div>
 
                     {/* Box Puntata */}
                     <div className="w-[380px] text-center bg-white border border-gray-200 text-gray-800 p-3 rounded-xl shadow-lg mt-4">
-                        <h4 className="m-0 text-lg">💰 Puntata Minima: <span className="font-bold text-green-600">{state?.currentCard?.startingBid}€</span></h4>
-                        <h4 className="m-0 text-lg">💰 Puntata Corrente: <span className="font-bold text-red-600">{state?.currentBid}€</span></h4>
+                        <h4 className="m-0 text-lg">💰 Minimum Bid: <span className="font-bold text-green-600">42€</span></h4>
+                        <h4 className="m-0 text-lg">💰 Current Bid: <span className="font-bold text-red-600">56€</span></h4>
                     </div>
                 </div>
 
                 {/* --- COLONNA DESTRA: INFO ASTA / GIOCATORI --- */}
                 <div>
-                    <h3 className="text-xl font-semibold mb-4">👥 Giocatori</h3>
+                    <h3 className="text-xl font-semibold mb-4">👥 Players</h3>
 
                     {/* Funzione per renderizzare il box del giocatore */}
                     {/* ===== Giocatore ===== */}
                     <div className="bg-white p-4 rounded-xl shadow-lg mb-4 border border-gray-100">
-                        <div className="text-lg font-bold mb-3 border-b pb-2 text-blue-600">🧍 Giocatore</div>
+                        <div className="text-lg font-bold mb-3 border-b pb-2 text-blue-600">🧍 Player</div>
 
                         {/* Statistiche principali */}
                         <div className="flex justify-around text-center mb-3">
                         <div className="stat-block">
                             <div className="text-2xl font-extrabold text-blue-600">
-                            {state?.players?.human?.budget ?? 0}€
+                            {state?.players?.human?.budget ?? 600}€
                             </div>
-                            <div className="text-xs text-gray-500">Crediti</div>
+                            <div className="text-xs text-gray-500">Coins</div>
                         </div>
                         <div className="stat-block">
                             <div className="text-2xl font-extrabold text-purple-600">
                             {state?.players?.human?.vp ?? 0}
                             </div>
-                            <div className="text-xs text-gray-500">Punteggio</div>
+                            <div className="text-xs text-gray-500">Score</div>
                         </div>
                         </div>
 
@@ -162,23 +162,16 @@ return (
                         <div className="flex justify-around text-center border-t pt-3">
                         <div className="card-block">
                             <div className="text-lg font-bold text-purple-600">
-                            {state?.players?.human?.cards["Arte"] ?? 0}
-                            </div>
-                            <div className="text-xs text-gray-500">Arte</div>
-                        </div>
-
-                        <div className="card-block">
-                            <div className="text-lg font-bold text-purple-600">
                             {state?.players?.human?.cards["Reliquia"] ?? 0}
                             </div>
-                            <div className="text-xs text-gray-500">Reliquia</div>
+                            <div className="text-xs text-gray-500">Reliquie</div>
                         </div>
 
                         <div className="card-block">
                             <div className="text-lg font-bold text-purple-600">
                             {state?.players?.human?.cards["Tecnologia"] ?? 0}
                             </div>
-                            <div className="text-xs text-gray-500">Tecnologia</div>
+                            <div className="text-xs text-gray-500">Technologies</div>
                         </div>
                         </div>
                     </div>
@@ -193,39 +186,33 @@ return (
                         <div className="flex justify-around text-center mb-3">
                         <div className="stat-block">
                             <div className="text-2xl font-extrabold text-blue-600">
-                            {state?.players?.robot?.budget ?? 0}€
+                            {state?.players?.robot?.budget ?? 600}€
                             </div>
-                            <div className="text-xs text-gray-500">Crediti</div>
+                            <div className="text-xs text-gray-500">Coins</div>
                         </div>
                         <div className="stat-block">
                             <div className="text-2xl font-extrabold text-purple-600">
                             {state?.players?.robot?.vp ?? 0}
                             </div>
-                            <div className="text-xs text-gray-500">Punteggio</div>
+                            <div className="text-xs text-gray-500">Score</div>
                         </div>
                         </div>
 
                         {/* Categorie fisse */}
                         <div className="flex justify-around text-center border-t pt-3">
-                        <div className="card-block">
-                            <div className="text-lg font-bold text-purple-600">
-                            {state?.players?.robot?.cards["Arte"] ?? 0}
-                            </div>
-                            <div className="text-xs text-gray-500">Arte</div>
-                        </div>
 
                         <div className="card-block">
                             <div className="text-lg font-bold text-purple-600">
                             {state?.players?.robot?.cards["Reliquia"] ?? 0}
                             </div>
-                            <div className="text-xs text-gray-500">Reliquia</div>
+                            <div className="text-xs text-gray-500">Reliquie</div>
                         </div>
 
                         <div className="card-block">
                             <div className="text-lg font-bold text-purple-600">
                             {state?.players?.robot?.cards["Tecnologia"] ?? 0}
                             </div>
-                            <div className="text-xs text-gray-500">Tecnologia</div>
+                            <div className="text-xs text-gray-500">Technologies</div>
                         </div>
                         </div>
                     </div>
@@ -252,16 +239,19 @@ return (
                 //     //remove confirm button
                 //     showConfirmButton: false
                 // });
-                alertVideo(mic, true);
+                //alertVideo(mic, true);
+                /* Swal.fire({title: 'Talk with the robot and wait...',allowOutsideClick: false, didOpen: () => { Swal.showLoading();}});
                 const ok = await actionGame();
                 Swal.close();
                 if (ok != ""){ 
                     Swal.fire({title: ok});
-                } 
+                }  */
+                alertVideo(humanWinner, true)
+
             }}
                 className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white p-5 rounded-xl text-2xl font-bold shadow-xl transition transform hover:scale-[1.01]"
             >
-               🎤 Premi per parlare
+               🎤 Press to Talk
             </button>
         </div>
     );

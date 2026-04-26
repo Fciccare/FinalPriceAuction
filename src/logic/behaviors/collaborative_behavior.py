@@ -22,21 +22,24 @@ ANNOYED = ['animations/Stand/Gestures/YouKnowWhat_1', 'animations/Stand/Gestures
 
 class CollaborativeBehavior(Pepper):
 
-    def __init__(self, session, ip, args, port):
+    def __init__(self, session, ip, args, port, language="eng"):
         super().__init__(session, ip, args, port)
+        self.language = language
 
-        self.tts.setLanguage("Italian")
+        if language=="ita":
+            self.tts.setLanguage("Italian")
+        else:
+            self.tts.setLanguage("English")
 
         self.motion.setStiffnesses("Body", 1.0)
 
         self.pose_dictionary = {
-                "active_listening": self.pose_1_ascolto_attivo,
-                "mani_giunte": self.pose_2_attesa_mani_giunte,
-                "offerta": self.pose_3_gesto_offerta,
-                "riflessione": self.pose_4_riflessione,
+                #"active_listening": self.pose_1_ascolto_attivo,
+                #"mani_giunte": self.pose_2_attesa_mani_giunte,
+                #"offerta": self.pose_3_gesto_offerta,
+                #"riflessione": self.pose_4_riflessione,
                 "entusiasta": self.pose_7_entusiasta,
                 "happy": self.pose_8_felice,
-                "yes": self.pose_9_yes,
                 "cinque": self.pose_11_cinque,
                 "saluto": self.pose_10_saluto
             }
@@ -61,7 +64,8 @@ class CollaborativeBehavior(Pepper):
 
         if frase:
             # print(f"Robot dice: {frase}")
-            frase = frase.replace("\""," ")
+            frase = frase.replace("\\"," ")
+            frase = frase.encode().decode("unicode_escape")
             self.tts.say(frase)
         
         time.sleep(1)
@@ -210,7 +214,7 @@ class CollaborativeBehavior(Pepper):
         self.reset_eyes()
 
     def pose_9_yes(self):
-        print("Eseguo: Yes")
+        print("Eseguo: Explain")
         self.animation_player_service.run("animations/Stand/Gestures/Explain_4")
 
     def pose_10_saluto(self):

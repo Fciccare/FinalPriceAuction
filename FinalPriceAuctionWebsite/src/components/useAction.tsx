@@ -116,6 +116,7 @@ export default function useAuction() {
         return data["error"];
       }else{
         const data = await res.json();
+        console.log(data)
         setState(mapBackendToFrontend(data));
         return "";  // tutto ok
       }
@@ -132,6 +133,7 @@ export default function useAuction() {
     try {
       const res = await fetch(`${URL}/game/state`);
       const data = await res.json();
+      console.log(data)
       setState(mapBackendToFrontend(data));
     } catch (err) {
       console.error("Errore nel fetch dello stato:", err);

@@ -140,14 +140,15 @@ class Gemini:
                 print("Errore persistente, ritorno None")
                 return None
 
-    def turn_result(self, winner, hobbies, retries=10):
+    def turn_result(self, winner, price, hobbies, retries=10):
         try:
             print(f"The winner is {winner}")
             prompt_fine_turno = crea_prompt_fine_asta(
                 winner,
-                self.auction.current_bid,
+                price,
                 self.personalita,
                 hobbies)
+            print(prompt_fine_turno)
             response = self.chat.send_message(prompt_fine_turno)
 
             dialogo = estrai_dialogo(response.text)

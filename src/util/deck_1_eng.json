@@ -1,0 +1,56 @@
+[
+  {
+    "card_name": "AI Chip",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 6,
+    "starting_bid": 30,
+    "heat_requirement": 76,
+    "img_url": "deck/images/deck1/chip_ai.png"
+  },
+  {
+    "card_name": "\"Ornithopter\" Project",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 9,
+    "starting_bid": 42,
+    "heat_requirement": 104,
+    "img_url": "deck/images/deck1/progetto_ornitottero.png"
+  },
+  {
+    "card_name": "Arc Reactor",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 12,
+    "starting_bid": 48,
+    "heat_requirement": 120,
+    "img_url": "deck/images/deck1/reattore_arc.png"
+  },
+  {
+    "card_name": "Julius Caesar's Cloak",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 6,
+    "starting_bid": 30,
+    "heat_requirement": 75,
+    "img_url": "deck/images/deck1/mantello_cesare.png"
+  },
+  {
+    "card_name": "Obelisk Fragment",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 9,
+    "starting_bid": 36,
+    "heat_requirement": 89,
+    "img_url": "deck/images/deck1/frammento_obelisco.png"
+  },
+  {
+    "card_name": "Sunken Crown",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 12,
+    "starting_bid": 49,
+    "heat_requirement": 122,
+    "img_url": "deck/images/deck1/corona_sommersa.png"
+  }
+]

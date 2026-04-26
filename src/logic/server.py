@@ -29,8 +29,10 @@ if session is None:
     parser.add_argument("--ip", type=str, default=ROBOT_IP, help="Robot IP address.")
     parser.add_argument("--sock", type=str, default="server", help="Robot socket side: server or client.")
     parser.add_argument("--coop", action="store_true", help="If set, robot is cooperative")  # flag booleano
+    parser.add_argument("--eng", action="store_true", help="Set language in english")  # flag booleano
     args = parser.parse_args()
     coop_mode = args.coop
+
 
     try:
         port = str(PORT)
@@ -50,9 +52,13 @@ if session is None:
 
         if coop_mode:
             active_behavior = CollaborativeBehavior(session, args.ip, args, port)
+            if args.eng:
+                active_behavior.language = "en"
             print("Robot is cooperative.")
         else:
             active_behavior = CompetitiveBehavior(session, args.ip, args, port)
+            if args.eng:
+                active_behavior.language = "en"
             print("Robot is competitive.")
 
         if active_behavior.autonomus.getState != "disabled":

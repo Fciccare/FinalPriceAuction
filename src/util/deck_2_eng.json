@@ -1,0 +1,56 @@
+[
+  {
+    "card_name": "First Copy of Minecraft",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 6,
+    "starting_bid": 32,
+    "heat_requirement": 80,
+    "img_url": "deck/images/deck2/prima_minecraft.png"
+  },
+  {
+    "card_name": "\"Architect\" AI",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 9,
+    "starting_bid": 42,
+    "heat_requirement": 104,
+    "img_url": "deck/images/deck2/AI_architetto.png"
+  },
+  {
+    "card_name": "Primary \"Matrix\" Server",
+    "category_name": "Tecnologia",
+    "category_color": "blue",
+    "victory_points": 12,
+    "starting_bid": 46,
+    "heat_requirement": 115,
+    "img_url": "deck/images/deck2/server_matrix.png"
+  },
+  {
+    "card_name": "80s Console",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 6,
+    "starting_bid": 33,
+    "heat_requirement": 83,
+    "img_url": "deck/images/deck2/console_80.png"
+  },
+  {
+    "card_name": "Typewriter",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 9,
+    "starting_bid": 38,
+    "heat_requirement": 95,
+    "img_url": "deck/images/deck2/macchina_scrivere.png"
+  },
+  {
+    "card_name": "Creature Capture Sphere",
+    "category_name": "Reliquia",
+    "category_color": "green",
+    "victory_points": 12,
+    "starting_bid": 45,
+    "heat_requirement": 113,
+    "img_url": "deck/images/deck2/sfera_creature.png"
+  }
+]

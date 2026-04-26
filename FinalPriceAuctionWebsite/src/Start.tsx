@@ -13,7 +13,7 @@ function Start(){
         e.preventDefault();
         console.log("Inizio il gioco e vado alla pagina dell'asta");
         //loading scrren alert swal with circle spinner
-        Swal.fire({title: 'Inizializzazione dell\'asta in corso...',allowOutsideClick: false, didOpen: () => { Swal.showLoading();}});
+        Swal.fire({title: 'Init auction in progress...',allowOutsideClick: false, didOpen: () => { Swal.showLoading();}});
         fetchState().then(() => {
             Swal.close();
             navigate("/auction");
@@ -32,7 +32,7 @@ function Start(){
           <button
             onClick={(e) => handleSubmit(e)}
             className="mt-6 w-full py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
-            Premi per iniziare l'asta
+            Press to start the game
            </button>
         </div>
       </div>
